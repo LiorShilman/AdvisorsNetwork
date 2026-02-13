@@ -1,0 +1,28 @@
+
+// src/app/app.component.scss
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  .app-header {
+    background-color: #1a1a2e;
+    color: white;
+    padding: 0.5rem 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+  }
+  
+  .header-text {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  
+  .app-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }

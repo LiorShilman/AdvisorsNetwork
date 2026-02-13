@@ -1,0 +1,7 @@
+<div [ngClass]="{
+    'bg-surface self-start text-white': message.sender === 'system',
+    'bg-primary self-end text-black': message.sender === 'user'
+  }"
+  class="rounded-2xl max-w-md p-4 shadow transition-all">
+    {{ message.text }}
+  </div>

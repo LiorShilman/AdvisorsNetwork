@@ -1,0 +1,110 @@
+{
+  "name": "Agentic AI for אופק פיננסי 360°",
+  "lists": [
+    {
+      "name": "שלב 1 – יסודות Agentic AI"
+    },
+    {
+      "name": "שלב 2 – CrewAI / AutoGen"
+    },
+    {
+      "name": "שלב 3 – Memory & State"
+    },
+    {
+      "name": "שלב 4 – Conflict Management"
+    },
+    {
+      "name": "שלב 5 – Meta-Agent & Custom Agents"
+    }
+  ],
+  "cards": [
+    {
+      "name": "הבנת מהו Agent ואיך הוא שונה מ-Prompt",
+      "idList": "שלב 1 – יסודות Agentic AI",
+      "labels": [
+        "לימוד"
+      ]
+    },
+    {
+      "name": "הגדרת פרסונה לכל Agent לפי advisorId",
+      "idList": "שלב 1 – יסודות Agentic AI",
+      "labels": [
+        "תרגול",
+        "חיבור לפרויקט"
+      ]
+    },
+    {
+      "name": "יצירת שני Agents בעזרת CrewAI שמבצעים שיחה ביניהם",
+      "idList": "שלב 2 – CrewAI / AutoGen",
+      "labels": [
+        "תרגול"
+      ]
+    },
+    {
+      "name": "בניית Orchestrator שמנתב שאלה ליועץ רלוונטי",
+      "idList": "שלב 2 – CrewAI / AutoGen",
+      "labels": [
+        "חיבור לפרויקט"
+      ]
+    },
+    {
+      "name": "שילוב Memory פנימי עם LangGraph",
+      "idList": "שלב 3 – Memory & State",
+      "labels": [
+        "לימוד",
+        "תרגול"
+      ]
+    },
+    {
+      "name": "שמירה על הקשר שיחה בין יועצים לאורך זמן",
+      "idList": "שלב 3 – Memory & State",
+      "labels": [
+        "חיבור לפרויקט"
+      ]
+    },
+    {
+      "name": "זיהוי קונפליקט בין המלצות של יועצים",
+      "idList": "שלב 4 – Conflict Management",
+      "labels": [
+        "לימוד"
+      ]
+    },
+    {
+      "name": "בניית לוגיקת ניתוח טרייד-אוף והשוואה בין דעות",
+      "idList": "שלב 4 – Conflict Management",
+      "labels": [
+        "תרגול",
+        "חיבור לפרויקט"
+      ]
+    },
+    {
+      "name": "יצירת Meta-Agent שמזהה את סוג המשתמש",
+      "idList": "שלב 5 – Meta-Agent & Custom Agents",
+      "labels": [
+        "לימוד",
+        "תרגול"
+      ]
+    },
+    {
+      "name": "בניית Agent מותאם אישית לפי שלב חיים ופרסונה",
+      "idList": "שלב 5 – Meta-Agent & Custom Agents",
+      "labels": [
+        "חיבור לפרויקט"
+      ]
+    }
+  ],
+  "labels": [
+    {
+      "name": "לימוד",
+      "color": "green"
+    },
+    {
+      "name": "תרגול",
+      "color": "blue"
+    },
+    {
+      "name": "חיבור לפרויקט",
+      "color": "orange"
+    }
+  ]
+}

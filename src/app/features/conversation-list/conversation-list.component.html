@@ -1,0 +1,420 @@
+<div class="min-h-screen flex flex-col bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-4" dir="rtl">
+    <div class="max-w-[1600px] w-full mx-auto">
+        <header class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">
+                היסטוריית שיחות
+            </h1>
+            <button [routerLink]="['/conversation']" [queryParams]="{new: true}" 
+                class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 
+                       text-white px-4 py-2 rounded-lg flex items-center shadow-lg hover:shadow-xl transition-all">
+                <span class="mr-2">+</span>
+                <span>שיחה חדשה</span>
+            </button>
+        </header>
+
+        <!-- נגן פודקסט מעוצב - יש להוסיף אחרי תג ה-header בקובץ conversation-list.component.html -->
+        <div class="max-w-[1600px] w-full mx-auto mb-8 audio-player-container">
+            <div class="bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 rounded-xl p-4 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden">
+                <!-- כותרת ותיאור -->
+                <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-3">
+                    <div class="flex-1">
+                        <h2 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500 mb-2">
+                            <span class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mr-2" viewBox="0 0 16 16">
+                                    <path d="M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5z"/>
+                                    <path d="M10 8a2 2 0 1 1-4 0V3a2 2 0 1 1 4 0v5zM8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3z"/>
+                                </svg>
+                                פודקסט: הסבר על המערכת
+                            </span>
+                        </h2>
+                        <p class="text-gray-300 text-sm md:text-base max-w-2xl" [class.line-clamp-2]="!expanded">
+                            האזינו לפודקסט המסביר את יכולות המערכת ואיך להפיק ממנה את המרב. קבלו טיפים מעשיים לשימוש יעיל ביועצים השונים והדרכה מפורטת על הפלטפורמה.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- נגן האודיו המותאם -->
+                <div class="custom-audio-player bg-gray-900 rounded-lg p-3 shadow-inner relative overflow-hidden" dir="rtl">
+                    <!-- אפקט גלים אינטראקטיבי (ויזואליזציה) -->
+                    <div class="audio-waves absolute inset-0 flex items-center justify-center opacity-20 pointer-events-none" 
+                         [ngClass]="{'isPlaying': isPlaying}">
+                        <ng-container *ngFor="let i of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]">
+                            <div class="audio-bar h-8 w-1 mx-0.5 rounded-full opacity-70"
+                                [ngClass]="{'bg-blue-400': i % 3 === 0, 'bg-indigo-500': i % 3 === 1, 'bg-purple-500': i % 3 === 2}"
+                                [style.height.px]="isPlaying ? 20 + (i % 10) * 3 : 10 + (i % 5) * 2">
+                            </div>
+                        </ng-container>
+                    </div>
+                
+                    <!-- כפתורי שליטה -->
+                    <div class="flex items-center justify-between z-10 relative">
+                        <!-- כפתורים מבוססי טקסט לדילוג בזמן - פשוטים ובהירים לעברית -->
+                        <div class="flex items-center gap-3">
+                           
+                            
+                            <!-- כפתור קדימה 15 שניות - רק טקסט -->
+                            <button (click)="seekRelative(15)" 
+                                    class="forward-button h-8 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white 
+                                        px-2 rounded-md flex items-center justify-center transition-colors" 
+                                    title="קדימה 15 שניות">
+                                    <span class="font-bold">⟲ 15</span>
+                            </button>
+
+                            <!-- כפתור חזור 15 שניות - רק טקסט -->
+                            <button (click)="seekRelative(-15)" 
+                                    class="rewind-button h-8 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white 
+                                        px-2 rounded-md flex items-center justify-center transition-colors" 
+                                    title="חזור 15 שניות">
+                               
+                                <span class="font-bold">15 ⟳</span>
+                            </button>
+
+                             <!-- כפתור נגינה/השהייה -->
+                             <button (click)="togglePlayPause()" 
+                                    class="play-button h-10 w-10 flex items-center justify-center rounded-full 
+                                        bg-gradient-to-l from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500
+                                        text-white shadow-lg transform transition-all duration-300 hover:scale-110">
+                                        <span *ngIf="!isPlaying" class="text-lg transform rotate-180">▶</span>
+                                <span *ngIf="isPlaying" class="text-lg">⏸</span>
+                            </button>
+                     
+                     
+                        </div>
+                        
+                        <!-- תצוגת זמן ופרוגרס בר -->
+                        <!-- תיקון החלק הויזואלי של פס ההתקדמות -->
+                        <div class="flex-1 mx-4">
+                            <div class="flex justify-between text-xs text-gray-400 mb-1 select-none">
+                                <span>{{ duration }}</span>
+                                <span>{{ currentTime }}</span>
+                            </div>
+                            <div class="h-2 bg-gray-700 rounded-full overflow-hidden relative">
+                                <!-- תיקון פס ההתקדמות - שימוש בwidth במקום transform להצגה נכונה בממשק RTL -->
+                                <div class="absolute inset-y-0 right-0 bg-gradient-to-l from-blue-500 to-indigo-600" 
+                                    [style.width]="(progress * 100) + '%'"></div>
+                                <input type="range" class="absolute inset-0 appearance-none w-full h-full opacity-0 cursor-pointer rtl-range" 
+                                    min="0" max="1" step="0.001" [(ngModel)]="progress" (input)="onProgressChange()" (change)="onProgressChangeEnd()">
+                            </div>
+                        </div>
+                        
+                        <!-- כפתורי פונקציות נוספות -->
+                        <div class="flex items-center gap-2">
+                            <button class="text-gray-400 hover:text-white transition-colors p-2 rounded-full" (click)="toggleExpanded()" title="הרחב/כווץ">
+                                <svg *ngIf="!expanded" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                                </svg>
+                                <svg *ngIf="expanded" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z"/>
+                                </svg>
+                            </button>
+                           <!-- כפתורי פונקציות נוספות - מתוקנים לעימוד נכון -->
+                            <div class="flex items-center gap-2 justify-end">
+                                <!-- כפתור השתקת שמע -->
+                                <button class="text-gray-400 hover:text-white transition-colors p-2 rounded-full h-8 w-8 flex items-center justify-center" (click)="toggleMute()"
+                                        [ngClass]="{'text-blue-400': isMuted}" title="השתק">
+                                    <svg *ngIf="!isMuted" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707z"/>
+                                        <path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.483 5.483 0 0 1 11.025 8a5.483 5.483 0 0 1-1.61 3.89l.706.706z"/>
+                                        <path d="M8.707 11.182A4.486 4.486 0 0 0 10.025 8a4.486 4.486 0 0 0-1.318-3.182L8 5.525A3.489 3.489 0 0 1 9.025 8 3.49 3.49 0 0 1 8 10.475l.707.707zM6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06z"/>
+                                    </svg>
+                                    <svg *ngIf="isMuted" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06zm7.137 2.096a.5.5 0 0 1 0 .708L12.207 8l1.647 1.646a.5.5 0 0 1-.708.708L11.5 8.707l-1.646 1.647a.5.5 0 0 1-.708-.708L10.793 8 9.146 6.354a.5.5 0 1 1 .708-.708L11.5 7.293l1.646-1.647a.5.5 0 0 1 .708 0z"/>
+                                    </svg>
+                                </button>
+                                
+                                <!-- כפתור מהירות ניגון -->
+                                <button class="text-gray-400 hover:text-white transition-colors p-2 rounded-full h-8 w-8 flex items-center justify-center"
+                                        [ngClass]="{'text-blue-400': playbackRate !== 1}"
+                                        (click)="cyclePlaybackRate()" title="מהירות ניגון">
+                                    <span class="text-xs font-bold">{{ playbackRate }}x</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- האלמנט האמיתי של האודיו (מוסתר ויזואלית) -->
+                    <audio #audioElement [src]="podcastFilePath" preload="metadata"></audio>
+                </div>
+                
+                <!-- הערות ורשימת פרקים (מוצג רק כשמורחב) -->
+                <div *ngIf="expanded" class="podcast-details mt-4 bg-gray-850 rounded-lg p-4 animate-fadeIn">
+                    <h3 class="text-lg font-semibold text-blue-400 mb-2">תוכן הפודקסט:</h3>
+                    <ul class="list-disc list-inside space-y-1 text-gray-300 mb-4">
+                        <li class="hover:text-white cursor-pointer transition-colors" (click)="seekTo(0)">
+                            <span class="text-xs text-gray-500 ml-2 inline-block w-12">00:00</span> פתיחה והקדמה למערכת
+                        </li>
+                        <li class="hover:text-white cursor-pointer transition-colors" (click)="seekTo(120)">
+                            <span class="text-xs text-gray-500 ml-2 inline-block w-12">02:00</span> היכרות עם היועצים הפיננסיים
+                        </li>
+                        <li class="hover:text-white cursor-pointer transition-colors" (click)="seekTo(360)">
+                            <span class="text-xs text-gray-500 ml-2 inline-block w-12">06:00</span> כיצד להשתמש בתכונות מתקדמות
+                        </li>
+                        <li class="hover:text-white cursor-pointer transition-colors" (click)="seekTo(540)">
+                            <span class="text-xs text-gray-500 ml-2 inline-block w-12">09:00</span> דוגמאות לתרחישי שימוש נפוצים
+                        </li>
+                        <li class="hover:text-white cursor-pointer transition-colors" (click)="seekTo(660)">
+                            <span class="text-xs text-gray-500 ml-2 inline-block w-12">11:00</span> טיפים להפקת המרב מהמערכת
+                        </li>
+                    </ul>
+                    <div class="flex justify-end">
+                        <a href="/assets/documents/podcast-transcript.pdf" target="_blank" class="text-blue-400 hover:text-blue-300 transition-colors text-sm flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="ml-1" viewBox="0 0 16 16">
+                                <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                                <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                            </svg>
+                            הורד את תמליל הפודקסט
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- חיפוש ומיון -->
+        <div class="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center mb-6">
+            <div class="relative w-full md:w-80">
+                <input type="text" [(ngModel)]="searchTerm" (input)="applyFilters()" placeholder="חיפוש בשיחות..."
+                    class="w-full p-3 pr-10 rounded-xl bg-gray-700 text-white placeholder-gray-400 
+                           focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+                <span class="absolute left-3 top-3 text-gray-400">
+                    <!-- אייקון חיפוש -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        viewBox="0 0 16 16">
+                        <path
+                            d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+                    </svg>
+                </span>
+            </div>
+
+            <button (click)="toggleSort()"
+                class="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all">
+                <span>מיון לפי תאריך</span>
+                <span *ngIf="sortOrder === 'desc'" class="text-blue-400">↓ (מהחדש לישן)</span>
+                <span *ngIf="sortOrder === 'asc'" class="text-blue-400">↑ (מהישן לחדש)</span>
+            </button>
+        </div>
+
+        <!-- אינדיקטור טעינה משופר -->
+        <div *ngIf="isLoading" class="self-center py-12 px-8 bg-gray-800 bg-opacity-50 rounded-xl shadow-lg backdrop-blur-sm">
+            <div class="flex space-x-1 justify-center items-center">
+                <div class="w-3 h-12 bg-blue-500 rounded-full animate-wave" style="animation-delay: 0ms"></div>
+                <div class="w-3 h-12 bg-indigo-500 rounded-full animate-wave" style="animation-delay: 100ms"></div>
+                <div class="w-3 h-12 bg-purple-500 rounded-full animate-wave" style="animation-delay: 200ms"></div>
+                <div class="w-3 h-12 bg-pink-500 rounded-full animate-wave" style="animation-delay: 300ms"></div>
+                <div class="w-3 h-12 bg-red-500 rounded-full animate-wave" style="animation-delay: 400ms"></div>
+            </div>
+            <p class="mt-4 text-white font-medium text-center">אנא המתן...</p>
+        </div>
+
+        <!-- תצוגת "אין תוצאות" משופרת -->
+        <div *ngIf="!isLoading && filteredConversations.length === 0" 
+             class="text-center py-16 px-6 bg-gray-800 bg-opacity-50 rounded-xl shadow-lg max-w-md mx-auto backdrop-blur-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" viewBox="0 0 16 16" 
+                 class="mx-auto text-gray-400 mb-4">
+                <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
+                <path d="M4.5 3a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-7zm0 1h7v8h-7V4z"/>
+            </svg>
+            <p class="text-2xl font-bold text-white mb-3">לא נמצאו שיחות</p>
+            <p class="text-gray-300 mb-6">התחל שיחה חדשה או שנה את מונחי החיפוש</p>
+            <button [routerLink]="['/conversation']" [queryParams]="{new: true}" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-lg flex items-center mx-auto">
+                <span class="mr-2">+</span>
+                <span>התחל שיחה חדשה</span>
+            </button>
+        </div>
+
+        <!-- רשימת השיחות - גריד משופר -->
+        <div *ngIf="!isLoading && filteredConversations.length > 0"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 perspective">
+            
+            <!-- כרטיס שיחה משודרג -->
+            <div *ngFor="let conversation of filteredConversations; let i = index"
+                class="bg-gray-800 rounded-xl overflow-hidden shadow-lg transition-all duration-300 
+                    hover:shadow-2xl hover:translate-y-[-5px] relative group"
+                [class.border]="isSpecialMode(conversation)"
+                [class.border-yellow-500]="isSpecialMode(conversation)"
+                [ngClass]="{
+                    'glow-animation': conversation._id === lastViewedConversation,
+                    'border-2 border-blue-500 animate-pulse-slow': isNewConversation(conversation) && !isSpecialMode(conversation)
+                }"
+                [style.animation-delay]="(i * 0.05) + 's'">
+                
+                <!-- הוסף "נצנוץ" לרקע -->
+                <div class="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900 opacity-0 
+                            group-hover:opacity-40 transition-opacity duration-500"></div>
+                
+                <!-- כותרת ותאריך - שינינו את הרקע להיות לפי היועץ רק בחלק הכותרת -->
+                <div class="p-4 border-b border-gray-700 relative z-10" [ngClass]="getAdvisorBackgroundColor(conversation)">
+                    <div class="flex justify-between items-start mb-2">
+                        <!-- כותרת במצב רגיל - צבע הטקסט נקבע דינמית לפי צבע הרקע -->
+                        <h3 *ngIf="editTitleId !== conversation._id"
+                            (dblclick)="startTitleEdit(conversation._id, getConversationTitle(conversation))"
+                            class="font-bold text-lg truncate flex-1 cursor-pointer hover:text-opacity-80"
+                            [ngClass]="getContrastTextDynamic(getLastAdvisorId(conversation))"
+                            title="לחץ פעמיים כדי לערוך את הכותרת">
+                            {{ getConversationTitle(conversation) }}
+                        </h3>
+
+                        <!-- כותרת במצב עריכה -->
+                        <div *ngIf="editTitleId === conversation._id" class="flex-1 flex gap-2">
+                            <input [(ngModel)]="newTitle" (keyup.enter)="saveNewTitle(conversation._id)"
+                                (keyup.escape)="cancelTitleEdit()"
+                                class="flex-1 p-1 rounded bg-gray-700 border border-blue-400 text-white"
+                                [disabled]="isUpdatingTitle" placeholder="הזן כותרת חדשה..." autofocus />
+                            <div class="flex gap-1">
+                                <button (click)="saveNewTitle(conversation._id)"
+                                    [disabled]="isUpdatingTitle || !newTitle.trim()"
+                                    class="text-green-500 hover:text-green-400" title="שמור">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                                        viewBox="0 0 16 16">
+                                        <path
+                                            d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z" />
+                                    </svg>
+                                </button>
+                                <button (click)="cancelTitleEdit()" class="text-gray-400 hover:text-white" title="בטל">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                                        viewBox="0 0 16 16">
+                                        <path
+                                            d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- כפתורי פעולה - צבע הטקסט נקבע דינמית לפי צבע הרקע -->
+                        <div class="flex ml-2">
+                            <!-- כפתור עריכה -->
+                            <button
+                                *ngIf="deleteConfirmationId !== conversation._id && editTitleId !== conversation._id"
+                                (click)="startTitleEdit(conversation._id, getConversationTitle(conversation))"
+                                [ngClass]="getContrastTextDynamic(getLastAdvisorId(conversation)) + ' hover:text-opacity-80'"
+                                class="mr-3 hover:scale-110 transition-transform" title="ערוך כותרת">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    viewBox="0 0 16 16">
+                                    <path
+                                        d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
+                                </svg>
+                            </button>
+
+                            <!-- כפתור מחיקה -->
+                            <button
+                                *ngIf="deleteConfirmationId !== conversation._id && editTitleId !== conversation._id"
+                                (click)="deleteConversation(conversation._id)" [disabled]="isDeleting"
+                                [ngClass]="getContrastTextDynamic(getLastAdvisorId(conversation)) + ' hover:text-opacity-80'"
+                                class="mr-3 hover:scale-110 transition-transform" title="מחק שיחה">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                                    viewBox="0 0 16 16">
+                                    <path
+                                        d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                    <path fill-rule="evenodd"
+                                        d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                                </svg>
+                            </button>
+
+                            <!-- אישור מחיקה -->
+                            <div *ngIf="deleteConfirmationId === conversation._id" class="flex gap-2">
+                                <button (click)="deleteConversation(conversation._id)" [disabled]="isDeleting"
+                                    [ngClass]="getContrastTextDynamic(getLastAdvisorId(conversation)) + ' font-bold hover:text-opacity-80'"
+                                    title="אשר מחיקה">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                                        viewBox="0 0 16 16">
+                                        <path
+                                            d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z" />
+                                    </svg>
+                                </button>
+                                <button (click)="cancelDelete()" 
+                                    [ngClass]="getContrastTextDynamic(getLastAdvisorId(conversation)) + ' hover:text-opacity-80'"
+                                    title="בטל">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                                        viewBox="0 0 16 16">
+                                        <path
+                                            d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center">
+                        <div class="text-sm" [ngClass]="getContrastTextDynamic(getLastAdvisorId(conversation))">
+                            {{ formatDate(conversation.updatedAt || conversation.createdAt) }}
+                        </div>
+
+                        <!-- הצגת ציון MFPL אם קיים -->
+                        <div *ngIf="getMfplScore(conversation).current !== null" 
+                             class="text-xs px-2 py-1 rounded font-medium transform transition-transform group-hover:scale-110"
+                             [ngClass]="{
+                                'bg-green-200 text-green-800': isMfplChangePositive(conversation),
+                                'bg-red-200 text-red-800': isMfplChangeNegative(conversation),
+                                'bg-blue-200 text-blue-800': !isMfplChangePositive(conversation) && !isMfplChangeNegative(conversation)
+                             }">
+                            מפ"ל: {{ getMfplScore(conversation).current }}
+                            <span *ngIf="getMfplScore(conversation).change !== null">
+                                ({{ getMfplScore(conversation).change! > 0 ? '+' : '' }}{{ getMfplScore(conversation).change }})
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- תקציר ההודעה האחרונה - כאן השארנו צבע נייטרלי אבל הוספנו גרדיאנט קל -->
+                <div (click)="loadConversation(conversation._id)"
+                    class="p-4 hover:bg-gray-700 hover:bg-opacity-80 cursor-pointer min-h-[120px] flex flex-col 
+                           justify-between bg-gray-800 relative z-10 transition-all duration-300">
+                    
+                    <!-- שם היועץ הנוכחי -->
+                    <div class="mb-2 text-xs font-medium px-2 py-1 rounded-full
+                                self-start transform transition-transform group-hover:scale-105"
+                        [ngClass]="{
+                            'bg-gray-700 text-gray-300': !isNewConversation(conversation),
+                            'bg-blue-600 text-white animate-pulse-slow': isNewConversation(conversation)
+                        }">
+                        {{ getLastActiveAdvisor(conversation) }}
+                    </div>
+
+                    <p class="text-sm text-gray-300 line-clamp-2 mb-2 group-hover:text-white transition-colors">
+                        {{ getLastMessage(conversation).text }}
+                    </p>
+
+                    <!-- רשימת יועצים משתתפים -->
+                    <div *ngIf="getAllParticipatingAdvisors(conversation).length > 1"
+                        class="mb-3 flex flex-wrap gap-2" style="display: grid;">
+                        <ng-container *ngFor="let advisorInfo of getAllParticipatingAdvisorsWithIds(conversation)">
+                            <span class="text-xs px-1.5 py-0.5 rounded-full text-white transition-all duration-200
+                                       group-hover:shadow-glow transform group-hover:scale-105"
+                                [ngClass]="getAdvisorTagColor(advisorInfo.id)">
+                                {{ advisorInfo.name }}
+                            </span>
+                        </ng-container>
+                    </div>
+
+                    <div class="flex justify-between items-center mt-auto">
+                        <span class="text-xs text-gray-500 group-hover:text-gray-400 transition-colors">
+                            {{ formatDate(getLastMessage(conversation).date) }}
+                        </span>
+                        
+                        <!-- אפקט קישור חדש (תוספת) -->
+                        <div class="relative overflow-hidden">
+                            <button class="text-blue-400 hover:text-blue-300 text-sm font-medium 
+                                           flex items-center gap-1 group-hover:translate-x-[-3px] transition-all duration-300" 
+                                    title="המשך שיחה">
+                                המשך לשיחה
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" 
+                                     viewBox="0 0 16 16" class="opacity-0 group-hover:opacity-100 transform scale-0 group-hover:scale-100 transition-all duration-300 animate-pulse-slow ml-1">
+                                    <path fill-rule="evenodd" 
+                                          d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                                </svg>
+                                
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- נוסיף סימן "חדש" לשיחות שנוצרו ב-24 השעות האחרונות -->
+                <!-- <div *ngIf="isNewConversation(conversation)" 
+                    class="absolute top-3 right-3 bg-blue-500 text-white text-xs px-2 py-1 
+                            rounded-full shadow-md animate-pulse-slow z-20">
+                    חדש
+                </div> -->
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,15 @@
+<div class="flex items-start gap-3 self-end text-right advisor-message">
+  <img [src]="getIconPath(advisor!.icon)" alt="Advisor Avatar"
+       class="rounded-full object-cover shadow-lg mt-1 transition-transform hover:scale-105"
+       style="width:125px; height:175px;" />
+
+  <div class="rounded-2xl px-5 py-4 text-white shadow-lg max-w-xxl message-bubble transition-all duration-300 hover:shadow-xl"
+       [ngClass]="getAdvisorColorClass()">
+    <div class="text-lg font-bold mb-2 flex items-center">
+      {{ getAdvisorName() }}
+    </div>
+    <div class="text-sm message-content">
+      <markdown [data]="formatMarkdown(msg.text)" class="text-right prose prose-invert max-w-none"></markdown>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,208 @@
+<div class="min-h-screen flex flex-col bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-4" dir="rtl">
+    <div class="max-w-[1600px] w-full mx-auto flex-1 flex flex-col">
+        <header class="flex justify-between items-center mb-4 flex-shrink-0">
+            <h1 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">שיחה עם יועצים</h1>
+            <div class="flex gap-2">
+                <!-- כפתור יועצים למובייל בלבד -->
+                <button (click)="showMobileAdvisors = !showMobileAdvisors"
+                    class="lg:hidden text-white px-3 py-2 rounded-lg flex items-center shadow-lg hover:shadow-xl transition-all"
+                    [ngClass]="showMobileAdvisors
+                        ? 'bg-indigo-600 hover:bg-indigo-700'
+                        : 'bg-gray-700 hover:bg-gray-600'">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                </button>
+                <button (click)="startNewConversation()"
+                    class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700
+                           text-white px-4 py-2 rounded-lg flex items-center shadow-lg hover:shadow-xl transition-all">
+                    <span class="mr-2">+</span>
+                    <span>שיחה חדשה</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- פאנל יועצים למובייל -->
+        <div *ngIf="showMobileAdvisors" class="lg:hidden mb-4 animate-fadeIn flex-shrink-0" style="animation-duration: 0.3s;">
+            <div class="bg-gray-800 bg-opacity-80 rounded-xl p-3 shadow-xl border border-gray-700 backdrop-blur-sm">
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                    <button *ngFor="let advisor of advisorsList"
+                            (click)="requestAdvisorSwitch(advisor.id); showMobileAdvisors = false"
+                            class="flex items-center gap-2 p-2 rounded-lg transition-all text-right
+                                   hover:bg-gray-700 hover:bg-opacity-60"
+                            [class.bg-gray-700]="lastAdvisorId === advisor.id"
+                            [class.ring-1]="lastAdvisorId === advisor.id"
+                            [class.ring-blue-400]="lastAdvisorId === advisor.id">
+                        <img [src]="getIconPath(advisor.icon)" [alt]="advisor.name"
+                             class="w-7 h-7 rounded-full object-cover flex-shrink-0"
+                             onerror="this.style.display='none'">
+                        <span class="text-xs text-gray-300 truncate"
+                              [class.text-white]="lastAdvisorId === advisor.id">
+                            {{ advisor.name.split('–')[0].trim() }}
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- תוכן ראשי: צ'אט + סיידבר -->
+        <div class="flex-1 flex gap-4 min-h-0">
+            <!-- אזור הצ'אט -->
+            <div class="flex-1 flex flex-col min-w-0 min-h-0">
+                <div class="flex-1 overflow-y-auto flex flex-col gap-4 mb-4 conversation-container">
+                    <div *ngFor="let msg of conversation; let i = index"
+                         class="animate-fadeIn"
+                         [style.animation-delay]="(i * 0.05) + 's'">
+                        <!-- הודעת מערכת / יועץ -->
+                        <ng-container *ngIf="msg.sender === 'system'; else userMsg">
+                            <advisor-message [msg]="msg" [advisor]="getAdvisor(msg.advisorId)"></advisor-message>
+                        </ng-container>
+
+                        <!-- הודעת משתמש -->
+                        <ng-template #userMsg>
+                            <user-message
+                                [msg]="msg"
+                                [isLastUserMessage]="msg === getLastUserMessage()"
+                                [onEdit]="startEditLastMessage.bind(this)"
+                                [onDelete]="deleteLastUserMessage.bind(this)">
+                            </user-message>
+                        </ng-template>
+                    </div>
+
+                    <!-- אינדיקטור טעינה -->
+                    <div *ngIf="isLoading" class="self-center py-8 px-8 bg-gray-800 bg-opacity-50 rounded-xl shadow-lg backdrop-blur-sm my-4">
+                        <div class="flex flex-col items-center">
+                            <div class="flex space-x-1 justify-center items-center">
+                                <div class="w-3 h-12 bg-blue-500 rounded-full animate-wave" style="animation-delay: 0ms"></div>
+                                <div class="w-3 h-12 bg-indigo-500 rounded-full animate-wave" style="animation-delay: 100ms"></div>
+                                <div class="w-3 h-12 bg-purple-500 rounded-full animate-wave" style="animation-delay: 200ms"></div>
+                                <div class="w-3 h-12 bg-pink-500 rounded-full animate-wave" style="animation-delay: 300ms"></div>
+                                <div class="w-3 h-12 bg-red-500 rounded-full animate-wave" style="animation-delay: 400ms"></div>
+                            </div>
+                            <p class="mt-4 text-white font-medium text-center">אנא המתן...</p>
+                            <button (click)="stopAdvisorResponse()"
+                                    class="mt-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg
+                                        flex items-center shadow-lg hover:shadow-xl transition-all hover:scale-105">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd" />
+                                </svg>
+                                <span>עצור תשובה</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- אזור התחתון עם שורת הקלט וכפתור חזרה -->
+                <div class="flex-shrink-0">
+                    <!-- כפתור חזרה לרשימה -->
+                    <div class="flex justify-start mb-3">
+                        <button routerLink="/conversations"
+                            class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2.5 rounded-lg flex items-center
+                                  transition-all hover:translate-x-[-3px] shadow-md hover:shadow-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                                            viewBox="0 0 16 16" class="ml-1">
+                                <path fill-rule="evenodd"
+                                    d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                            </svg>
+                            <span>חזרה לרשימה</span>
+                        </button>
+                    </div>
+
+                    <!-- אזור הטקסט והשליחה -->
+                    <div class="flex gap-2 items-center textarea bg-gray-800 bg-opacity-50 p-3 rounded-xl shadow-lg backdrop-blur-sm">
+                        <!-- כפתורים למצב עריכה -->
+                        <ng-container *ngIf="editMode">
+                            <button (click)="cancelEdit()"
+                                class="bg-gray-600 hover:bg-gray-500 text-white px-4 py-2.5 rounded-xl font-bold
+                                       transition-all hover:scale-105 shadow-md hover:shadow-lg">
+                                ביטול
+                            </button>
+                            <button (click)="saveEditedMessage()"
+                                class="bg-green-600 hover:bg-green-500 text-white px-4 py-2.5 rounded-xl font-bold
+                                       transition-all hover:scale-105 shadow-md hover:shadow-lg">
+                                שמור
+                            </button>
+                            <button (click)="sendEditedMessage()"
+                                class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700
+                                     text-white px-4 py-2.5 rounded-xl font-bold transition-all hover:scale-105 shadow-md hover:shadow-lg">
+                                שלח מחדש
+                            </button>
+                        </ng-container>
+
+                        <!-- כפתור שליחה למצב רגיל -->
+                        <button *ngIf="!editMode" (click)="sendMessage()" [disabled]="isLoading || !inputText.trim()"
+                            [ngClass]="{'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg hover:scale-105':
+                                       !isLoading && inputText.trim(),
+                                       'bg-gray-500 text-gray-300 cursor-not-allowed': isLoading || !inputText.trim()}"
+                            class="px-5 py-3 rounded-xl font-bold transition-all">
+                            שלח
+                        </button>
+
+                        <!-- תיבת טקסט -->
+                        <div class="flex-1 relative">
+                            <textarea #myInput [(ngModel)]="inputText" (keydown)="handleKeyDown($event)" [disabled]="isLoading"
+                                [placeholder]="editMode ? 'עריכת הודעה...' : 'הקלד כאן... (Enter לשליחה, Shift+Enter לירידת שורה)'"
+                                class="w-full p-4 rounded-xl bg-gray-700 text-white placeholder-gray-400 text-right resize-none
+                                       focus:ring-2 focus:ring-blue-500 transition-all shadow-inner"
+                                rows="3"
+                                #autoGrowTextArea
+                                (input)="autoGrowTextareaHeight(autoGrowTextArea)"
+                                [style.maxHeight]="expandedTextarea ? '400px' : '150px'"
+                                [style.minHeight]="expandedTextarea ? '200px' : '80px'"
+                                style="overflow-y: auto;"></textarea>
+
+                            <!-- כפתור להרחבת/כיווץ שדה הטקסט -->
+                            <button (click)="toggleTextareaExpand()" type="button"
+                                class="absolute bottom-2 left-2 bg-gray-600 hover:bg-gray-500 text-white rounded-full p-1.5
+                                       transition-all hover:scale-110 shadow-md"
+                                [title]="expandedTextarea ? 'כווץ שדה טקסט' : 'הרחב שדה טקסט'">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                    [style.transform]="expandedTextarea ? 'rotate(180deg)' : 'rotate(0deg)'">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+
+                            <!-- תווית מצב עריכה -->
+                            <div *ngIf="editMode"
+                                 class="absolute top-0 left-3 bg-blue-600 text-white text-xs px-2 py-1
+                                        rounded-bl-lg rounded-br-lg shadow-lg animate-pulse-slow">
+                                מצב עריכה
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- סיידבר יועצים - מוסתר במובייל -->
+            <aside class="w-64 flex-shrink-0 hidden lg:flex flex-col bg-gray-800 bg-opacity-60 rounded-xl border border-gray-700 border-opacity-50 backdrop-blur-sm overflow-hidden">
+                <!-- כותרת -->
+                <div class="p-3 border-b border-gray-700 border-opacity-50 flex-shrink-0">
+                    <h3 class="text-sm font-bold text-gray-300 text-center">צוות היועצים</h3>
+                </div>
+
+                <!-- רשימת יועצים -->
+                <div class="flex-1 overflow-y-auto p-2 space-y-0.5 advisors-sidebar-list">
+                    <button *ngFor="let advisor of advisorsList"
+                            (click)="requestAdvisorSwitch(advisor.id)"
+                            [disabled]="isLoading"
+                            class="w-full flex items-center gap-3 p-2.5 rounded-lg transition-all text-right
+                                   hover:bg-gray-700 hover:bg-opacity-60 group disabled:opacity-50 disabled:cursor-not-allowed"
+                            [class.bg-gray-700]="lastAdvisorId === advisor.id"
+                            [class.ring-1]="lastAdvisorId === advisor.id"
+                            [class.ring-blue-400]="lastAdvisorId === advisor.id"
+                            [title]="advisor.description || advisor.name">
+                        <img [src]="getIconPath(advisor.icon)" [alt]="advisor.name"
+                             class="w-10 h-10 rounded-full object-cover shadow-sm flex-shrink-0"
+                             onerror="this.style.display='none'">
+                        <span class="text-sm text-gray-300 truncate group-hover:text-white transition-colors"
+                              [class.text-white]="lastAdvisorId === advisor.id"
+                              [class.font-semibold]="lastAdvisorId === advisor.id">
+                            {{ advisor.name }}
+                        </span>
+                    </button>
+                </div>
+            </aside>
+        </div>
+    </div>
+</div>

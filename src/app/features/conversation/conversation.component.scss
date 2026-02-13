@@ -1,0 +1,471 @@
+
+  
+  /* עיצוב תוכן ההודעה עם שמירה על שורות חדשות */
+  .message-content {
+    white-space: pre-wrap;
+    line-height: 1.5;
+  }
+  
+  /* עיצוב מיוחד לפסקאות בתוך הודעות */
+  .message-content p {
+    margin-bottom: 0.8rem;
+  }
+  
+  /* עיצוב לרשימות בתוך הודעות */
+  .message-content ul, .message-content ol {
+    margin: 0.5rem 0;
+    padding-right: 1.5rem;
+  }
+  
+  .message-content li {
+    margin-bottom: 0.3rem;
+  }
+  
+  /* עיצוב לקישורים בתוך הודעות */
+  .message-content a {
+    color: #63B3ED;
+    text-decoration: underline;
+    transition: color 0.2s ease;
+  }
+  
+  .message-content a:hover {
+    color: #90CDF4;
+  }
+
+  /* סגנון ספציפי להודעות משתמש */
+.bg-cyan-700.message-bubble {
+    /* רוחב מינימלי גדול יותר להודעות משתמש */
+    min-width: 120px;
+  }
+  
+  /* התאמת גודל לפי אורך התוכן */
+  .message-bubble.short-message {
+    min-width: 120px;
+    max-width: 300px;
+  }
+  
+  .message-bubble.medium-message {
+    min-width: 180px;
+    max-width: 450px;
+  }
+  
+  .message-bubble.long-message {
+    min-width: 240px;
+    max-width: 600px;
+  }
+
+  
+  /* עיצוב לתיבת הקלט */
+  textarea.input-textarea {
+    min-height: 3rem;
+    max-height: 8rem;
+    resize: vertical;
+    transition: all 0.3s ease;
+  }
+  
+  textarea.input-textarea:focus {
+    border-color: #63B3ED;
+    box-shadow: 0 0 0 2px rgba(99, 179, 237, 0.3);
+  }
+
+  /* סגנונות לכפתורי עריכה */
+/* סגנון הודעות המשתמש */
+.message-bubble {
+    /* רוחב מינימלי בסיסי */
+    min-width: 100px;
+    
+    /* מגבלת רוחב מקסימלי */
+    max-width: 80%;
+    
+    /* התאמת רוחב אוטומטית לתוכן */
+    width: fit-content;
+    
+    /* מרווחים פנימיים */
+    padding: 0.75rem 1rem;
+    
+    /* עיגול פינות */
+    border-radius: 1rem;
+    
+    /* צל קל */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    
+    /* מעברים חלקים */
+    transition: all 0.2s ease;
+  }
+  
+  /* אפקט הופעה הדרגתית לכפתורי העריכה בריחוף */
+  .message-bubble .group-hover\:flex {
+    opacity: 0;
+    transform: translateY(-5px);
+    transition: all 0.2s ease;
+  }
+  
+  .message-bubble:hover .group-hover\:flex {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* סגנון מיוחד להודעה במצב עריכה */
+  .message-bubble.editing {
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+  }
+  
+  /* סגנון לתווית מצב עריכה */
+  .absolute.top-0.left-3 {
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* סגנון לתיבת טקסט במצב עריכה */
+  textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+  }
+  
+  /* כפתורי פעולה במצב עריכה */
+  button.bg-green-600 {
+    transition: all 0.2s ease;
+  }
+  
+  button.bg-green-600:hover {
+    transform: translateY(-2px);
+  }
+  
+  button.bg-gray-600 {
+    transition: all 0.2s ease;
+  }
+  
+  button.bg-gray-600:hover {
+    transform: translateY(-2px);
+  }
+
+  .message-bubble:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  /* התאמות לתצוגה במובייל */
+@media (max-width: 640px) {
+  .message-bubble {
+    min-width: 80px;
+    max-width: 90%;
+  }
+}
+
+  
+  /* אנימציה לכניסת הודעות חדשות */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* אנימציית מצב עריכה */
+    @keyframes editingPulse {
+        0% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+        }
+        70% {
+        box-shadow: 0 0 0 6px rgba(59, 130, 246, 0);
+        }
+        100% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+        }
+    }
+  
+  .editing-mode-active textarea {
+    animation: editingPulse 2s infinite;
+  }
+
+  @keyframes wave {
+    0%, 100% {
+      transform: scaleY(0.5);
+    }
+    50% {
+      transform: scaleY(1);
+    }
+  }
+  
+  .animate-wave {
+    animation: wave 1s ease-in-out infinite;
+  }
+  
+  .loading-indicator {
+    margin: 1rem 0;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    width: fit-content;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+
+  /* אנימציה לפעימה איטית */
+@keyframes pulse-slow {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.6;
+    }
+  }
+  
+  .animate-pulse-slow {
+    animation: pulse-slow 2s ease-in-out infinite;
+  }
+  
+  /* אפקט הופעה בטעינת הדף */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fadeIn {
+    opacity: 0;
+    animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  
+  /* אפקט גלגול (wave) לאינדיקטור טעינה */
+  @keyframes wave {
+    0%, 100% {
+      transform: scaleY(0.5);
+    }
+    50% {
+      transform: scaleY(1);
+    }
+  }
+  
+  .animate-wave {
+    animation: wave 1s ease-in-out infinite;
+  }
+  
+  /* אפקטים ויזואליים לכרטיסים וחלונות */
+  .message-bubble {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    
+    &:hover {
+      transform: translateY(-2px);
+    }
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(to right, rgba(255,255,255,0.1), rgba(255,255,255,0.2), rgba(255,255,255,0.1));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    &:hover::before {
+      opacity: 1;
+    }
+  }
+  
+  /* עיצוב תוכן ההודעה עם שמירה על שורות חדשות */
+  .message-content {
+    white-space: pre-wrap;
+    line-height: 1.6;
+    
+    p {
+      margin-bottom: 1rem;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+    
+    /* עיצוב לרשימות בתוך הודעות */
+    ul, ol {
+      margin: 0.8rem 0;
+      padding-right: 1.5rem;
+      
+      li {
+        margin-bottom: 0.5rem;
+        position: relative;
+        
+        &::before {
+          content: '';
+          position: absolute;
+          right: -1rem;
+          top: 0.5rem;
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+          background-color: rgba(255,255,255,0.5);
+        }
+      }
+    }
+    
+    /* עיצוב לקישורים בתוך הודעות */
+    a {
+      color: #90CDF4;
+      text-decoration: underline;
+      transition: all 0.2s ease;
+      position: relative;
+      
+      &:hover {
+        color: #BEE3F8;
+      }
+      
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 100%;
+        height: 1px;
+        background-color: currentColor;
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+        transform-origin: right;
+      }
+      
+      &:hover::after {
+        transform: scaleX(1);
+        transform-origin: left;
+      }
+    }
+  }
+  
+  /* אפקט backdrop-blur לדפדפנים תומכים */
+  @supports (backdrop-filter: blur(12px)) {
+    .backdrop-blur-sm {
+      backdrop-filter: blur(12px);
+    }
+  }
+  
+  /* עיצוב לכל כפתורי ההודעות (עריכה, מחיקה) */
+  button {
+    transition: all 0.2s ease;
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    &:not(:disabled):active {
+      transform: scale(0.95);
+    }
+  }
+  
+  /* סגנון מיוחד לשורת הקלט */
+  .textarea {
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: all 0.3s ease;
+    
+    &:focus-within {
+      border-color: rgba(59, 130, 246, 0.5);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+    }
+  }
+  
+  textarea {
+    transition: all 0.2s ease;
+    
+    &:focus {
+      outline: none;
+    }
+  }
+  
+  /* התאמות לתצוגה במובייל */
+  @media (max-width: 640px) {
+    .message-bubble {
+      min-width: 80px;
+      max-width: 90%;
+      padding: 0.75rem 1rem;
+    }
+    
+    .conversation-container {
+      gap: 0.75rem;
+    }
+  }
+
+  
+
+  /* סגנונות לכפתור העצירה - להוסיף לקובץ .scss */
+
+/* אנימציית דופק (pulsing) לכפתור עצירה */
+@keyframes pulse-attention {
+    0% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+    }
+    
+    70% {
+      transform: scale(1.05);
+      box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+    }
+    
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+    }
+  }
+  
+  /* סגנון הכפתור */
+  .stop-button {
+    background-color: #DC2626; /* bg-red-600 */
+    color: white;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    animation: pulse-attention 2s infinite;
+  }
+  
+  .stop-button:hover {
+    background-color: #B91C1C; /* bg-red-700 */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .stop-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* אייקון העצירה */
+  .stop-icon {
+    margin-right: 0.5rem;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  /* סיידבר יועצים */
+  .advisors-sidebar-list {
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      &:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+    }
+  }

@@ -1,0 +1,155 @@
+
+.advisor-message {
+  animation: fadeInRight 0.4s ease;
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Markdown Styling */
+markdown {
+  display: block;
+  direction: rtl;
+  text-align: right;
+  line-height: 1.8;
+  color: #e2e8f0;
+  font-family: 'Assistant', sans-serif;
+  font-size: 1.05rem;
+
+  h1, h2, h3, h4, h5, h6 {
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.3em;
+  }
+
+  strong {
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  em {
+    font-style: italic;
+    opacity: 0.9;
+  }
+
+  .message-bubble {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  
+  h1 { font-size: 1.6em; }
+  h2 { font-size: 1.4em; }
+  h3 { font-size: 1.2em; }
+
+  ul, ol {
+    margin: 1em 2em;
+    padding-right: 0.5em;
+
+    li {
+      margin-bottom: 0.4rem;
+      position: relative;
+    }
+  }
+
+  ul li::before {
+    content: '•';
+    position: absolute;
+    right: -1rem;
+    color: #81e6d9;
+  }
+
+  code {
+    background-color: #2d3748;
+    padding: 0.2em 0.4em;
+    border-radius: 6px;
+    color: #f6e05e;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.95em;
+  }
+
+  pre {
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 1em;
+    border-radius: 0.5em;
+    overflow-x: auto;
+    margin: 1em 0;
+    code {
+      background-color: transparent;
+      padding: 0;
+    }
+  }
+
+  blockquote {
+    border-right: 4px solid #4fd1c5;
+    background-color: rgba(79, 209, 197, 0.05);
+    padding: 1em;
+    margin: 1em 0;
+    font-style: italic;
+    color: #e2e8f0;
+    transition: transform 0.2s ease;
+    &:hover {
+      transform: scale(1.01);
+    }
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0;
+
+    th, td {
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 0.5em;
+    }
+
+    th {
+      background-color: rgba(0, 0, 0, 0.2);
+      font-weight: 600;
+    }
+
+    tr:nth-child(even) {
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  p {
+    margin-bottom: 1em;
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  a {
+    color: #63b3ed;
+    text-decoration: underline;
+    transition: all 0.2s ease;
+    &:hover {
+      color: #81e6d9;
+    }
+  }
+
+  .message-bubble {
+    animation: fadeInUp 0.4s ease-in-out;
+  }
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
