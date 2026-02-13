@@ -371,7 +371,7 @@ class AdvisorNetworkSystem {
 
                 if (fieldKey && impactValue > 0) {
                     const prev = conversation.state.mapalScore[fieldKey] || 0;
-                    const next = Math.min(prev + impactValue, 10);
+                    const next = Math.min(prev + impactValue, 5);
                     conversation.state.mapalScore[fieldKey] = next;
                     conversation.state.mapalScore.readiness = calculateWeightedMapalReadiness(conversation.state.mapalScore).percent;
 
@@ -448,7 +448,7 @@ class AdvisorNetworkSystem {
                             const newFieldKey = MAPAL_FIELD_KEYS[newAdvisorId];
                             if (newFieldKey && impactValue > 0) {
                                 const prev = conversation.state.mapalScore[newFieldKey] || 0;
-                                const next = Math.min(prev + impactValue, 10);
+                                const next = Math.min(prev + impactValue, 5);
                                 conversation.state.mapalScore[newFieldKey] = next;
                                 conversation.state.mapalScore.readiness = calculateWeightedMapalReadiness(conversation.state.mapalScore).percent;
                             }

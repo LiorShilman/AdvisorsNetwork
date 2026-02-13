@@ -335,7 +335,7 @@ function calculateWeightedMapalReadiness(mapalScore) {
   for (const [key, weight] of Object.entries(domainWeights)) {
     const value = Number.isFinite(mapalScore[key]) ? mapalScore[key] : 0;
     totalWeightedScore += value * weight;
-    totalWeight += 10 * weight; // סקלה של 10 נקודות לכל תחום
+    totalWeight += 5 * weight; // סקלה של 5 נקודות לכל תחום
   }
 
   const averageScore = totalWeightedScore / totalWeight * 10;
@@ -446,7 +446,7 @@ function renderMapalMarkdown(mapalScore, impactLevel = null, previousScore = nul
     const trend = getTrend(score, previousDomainScore);
     const progress = getBar(score, 10);
     
-    result.push(`| ${domain.icon} ${domain.label}&nbsp;&nbsp; | &nbsp;${score.toFixed(1)}/10&nbsp; | &nbsp;${trend}&nbsp; | &nbsp;${progress}&nbsp; | &nbsp;${domain.weight}%&nbsp; |`);
+    result.push(`| ${domain.icon} ${domain.label}&nbsp;&nbsp; | &nbsp;${score.toFixed(1)}/5&nbsp; | &nbsp;${trend}&nbsp; | &nbsp;${progress}&nbsp; | &nbsp;${domain.weight}%&nbsp; |`);
   });
 
   result.push('');

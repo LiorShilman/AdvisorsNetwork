@@ -21,7 +21,7 @@ function injectEmotionalQuestion(conversation, advisorId, parsedResponse) {
     // מציאת שאלה שעדיין לא נשאלה
     const questionToAsk = questions.find(q => !conversation.state.answeredEmotionalQuestions.includes(q));
   
-    if (questionToAsk) {
+    if (questionToAsk && !parsedResponse.text.includes(questionToAsk)) {
       parsedResponse.text += `\n\n🧠 שאלה למחשבה:\n${questionToAsk}`;
       conversation.state.answeredEmotionalQuestions.push(questionToAsk);
     }
