@@ -174,15 +174,15 @@
                 </div>
             </div>
 
-            <!-- פאנל מסע יועצים + MAPAL Radar -->
-            <aside class="flex-shrink-0 flex-col gap-3 min-h-0" style="width:224px; display:flex">
+            <!-- פאנל מסע יועצים + MAPAL Radar — מוצמד לתחתית -->
+            <aside class="flex-shrink-0 flex-col gap-3" style="width:224px; display:flex; align-self:flex-end">
 
                 <!-- Journey Timeline -->
                 <div class="flex flex-col bg-gray-800 bg-opacity-60 rounded-xl border border-gray-700 border-opacity-50 backdrop-blur-sm overflow-hidden flex-shrink-0">
                     <div class="p-2.5 border-b border-gray-700 border-opacity-50">
                         <h3 class="text-xs font-bold text-gray-400 text-center tracking-wider">🗺️ מסע היועצים</h3>
                     </div>
-                    <div class="p-3 overflow-y-auto max-h-48">
+                    <div class="p-3 overflow-y-auto max-h-28">
                         <div *ngIf="advisorJourney.length === 0" class="text-xs text-gray-500 text-center py-2">
                             המסע יתחיל בקרוב...
                         </div>
@@ -226,14 +226,14 @@
                 </div>
 
                 <!-- MAPAL Radar -->
-                <div class="flex-1 flex flex-col bg-gray-800 bg-opacity-60 rounded-xl border border-gray-700 border-opacity-50 backdrop-blur-sm overflow-hidden min-h-0">
-                    <div class="p-2.5 border-b border-gray-700 border-opacity-50 flex-shrink-0">
+                <div class="flex-shrink-0 flex flex-col bg-gray-800 bg-opacity-60 rounded-xl border border-gray-700 border-opacity-50 backdrop-blur-sm overflow-hidden" style="height:260px">
+                    <div class="p-2 border-b border-gray-700 border-opacity-50 flex-shrink-0">
                         <h3 class="text-xs font-bold text-gray-400 text-center tracking-wider">📊 מפ"ל 3.0</h3>
                     </div>
-                    <div class="flex-1 flex flex-col items-center justify-center p-2 min-h-0">
+                    <div class="flex-1 flex flex-col items-center justify-center p-1 min-h-0">
                         <!-- ציון אחוז -->
-                        <div class="text-center mb-1 flex-shrink-0">
-                            <span class="text-xl font-bold"
+                        <div class="text-center mb-0.5 flex-shrink-0">
+                            <span class="text-sm font-bold"
                                   [class.text-green-400]="getRadarPercent() >= 60"
                                   [class.text-yellow-400]="getRadarPercent() >= 30 && getRadarPercent() < 60"
                                   [class.text-red-400]="getRadarPercent() < 30">
@@ -242,7 +242,7 @@
                             <span class="text-xs text-gray-400 block">מוכנות פיננסית</span>
                         </div>
                         <!-- SVG Radar Chart -->
-                        <svg viewBox="0 0 180 180" class="w-full max-w-[180px] flex-shrink-0" xmlns="http://www.w3.org/2000/svg">
+                        <svg viewBox="0 0 180 180" class="w-full max-w-[210px] flex-shrink-0" xmlns="http://www.w3.org/2000/svg">
                             <!-- רשת רקע — עיגולים -->
                             <g opacity="0.15">
                                 <circle cx="90" cy="90" r="72" fill="none" stroke="white" stroke-width="0.5"/>
