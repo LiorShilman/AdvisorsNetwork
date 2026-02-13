@@ -164,6 +164,31 @@ export class ConversationComponent implements OnInit, AfterViewInit {
     return parseFloat((cy + r * val * Math.sin(angle)).toFixed(1));
   }
 
+  // ---- Journey 3 Columns ----
+  getJourneyColumns() {
+    const leftCol: typeof this.advisorJourney = [];
+    const centerCol: typeof this.advisorJourney = [];
+    const rightCol: typeof this.advisorJourney = [];
+
+    let otherIndex = 0;
+    this.advisorJourney.forEach(stop => {
+      if (stop.id === 'strategy') {
+        // אופק תמיד במרכז
+        centerCol.push(stop);
+      } else {
+        // שאר היועצים מתחלקים לפי אינדקס זוגי/אי-זוגי
+        if (otherIndex % 2 === 0) {
+          rightCol.push(stop);  // RTL: ימין
+        } else {
+          leftCol.push(stop);   // RTL: שמאל
+        }
+        otherIndex++;
+      }
+    });
+
+    return { leftCol, centerCol, rightCol };
+  }
+
   constructor(
     private sanitizer: DomSanitizer,
     private advisorService: AdvisorService, private route: ActivatedRoute, private chatSession: ChatSessionService, private renderer: Renderer2
