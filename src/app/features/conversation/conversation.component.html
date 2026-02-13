@@ -251,15 +251,15 @@
                                 <circle cx="90" cy="90" r="18" fill="none" stroke="white" stroke-width="0.5"/>
                             </g>
                             <!-- ציר לכל תחום -->
-                            <g *ngFor="let axis of getRadarAxes()">
+                            <ng-container *ngFor="let axis of getRadarAxes()">
                                 <line x1="90" y1="90" [attr.x2]="axis.x2" [attr.y2]="axis.y2"
                                       stroke="white" stroke-width="0.4" opacity="0.2"/>
-                                <text [attr.x]="axis.labelX" [attr.y]="axis.labelY"
+                                <svg:text [attr.x]="axis.labelX" [attr.y]="axis.labelY"
                                       text-anchor="middle" dominant-baseline="middle"
                                       fill="#9CA3AF" font-size="6" font-family="Rubik, sans-serif">
                                     {{ axis.label }}
-                                </text>
-                            </g>
+                                </svg:text>
+                            </ng-container>
                             <!-- פוליגון ערכי מפ"ל -->
                             <polygon [attr.points]="getRadarPolygon()"
                                      fill="rgba(59,130,246,0.35)"
@@ -268,10 +268,10 @@
                                      stroke-linejoin="round"
                                      class="radar-polygon"/>
                             <!-- נקודות על הפוליגון -->
-                            <g *ngFor="let axis of getRadarAxes(); let i = index">
+                            <ng-container *ngFor="let axis of getRadarAxes(); let i = index">
                                 <circle [attr.cx]="getRadarDotX(i)" [attr.cy]="getRadarDotY(i)"
                                         r="2" fill="#60A5FA" opacity="0.8"/>
-                            </g>
+                            </ng-container>
                         </svg>
                     </div>
                 </div>
