@@ -34,8 +34,8 @@ export class PodcastService {
     expanded: false
   });
   
-  // נתיב לקובץ האודיו
-  private _podcastFilePath = '/assets/audio/system-podcast.mp3';
+  // נתיב לקובץ האודיו (ללא סלש בהתחלה כדי לעבוד עם base href)
+  private _podcastFilePath = 'assets/audio/system-podcast.mp3';
   
   // השהייה כאשר מבצעים פעולות מחוץ לקומפוננטה העיקרית
   private _debounceTimer: any = null;
