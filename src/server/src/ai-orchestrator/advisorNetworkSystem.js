@@ -439,9 +439,8 @@ class AdvisorNetworkSystem {
             // 8. הזרקת שאלה רגשית
             injectEmotionalQuestion(conversation, currentAdvisorId, parsedResponse);
 
-            // 9. רינדור MAPAL markdown
-            const fieldKey = MAPAL_FIELD_KEYS[currentAdvisorId];
-            if (fieldKey) {
+            // 9. רינדור MAPAL markdown (כשהיו עדכונים בפועל)
+            if (Array.isArray(parsedResponse.mapalUpdates) && parsedResponse.mapalUpdates.length > 0) {
                 const markdown = renderMapalMarkdown(conversation.state.mapalScore);
                 if (markdown) {
                     parsedResponse.text += `\n\n${markdown}`;
@@ -507,8 +506,7 @@ class AdvisorNetworkSystem {
 
                         // שאלה רגשית + MAPAL markdown
                         injectEmotionalQuestion(conversation, newAdvisorId, newParsedResponse);
-                        const newFieldKey = MAPAL_FIELD_KEYS[newAdvisorId];
-                        if (newFieldKey) {
+                        if (Array.isArray(newParsedResponse.mapalUpdates) && newParsedResponse.mapalUpdates.length > 0) {
                             const markdown = renderMapalMarkdown(conversation.state.mapalScore);
                             if (markdown) {
                                 newParsedResponse.text += `\n\n${markdown}`;
