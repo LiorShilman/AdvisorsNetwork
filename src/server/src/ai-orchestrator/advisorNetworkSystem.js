@@ -14,7 +14,7 @@ const {
     handleAdvisorResponse
 } = require('../utils//advisorSummaryTools');
 const { maybeTriggerFutureSelf } = require('./../utils/futureSelfTrigger');
-const { renderMapalMarkdown, VALID_MAPAL_FIELDS, calculateWeightedMapalReadiness } = require('./../utils/mapalEnginePro');
+const { VALID_MAPAL_FIELDS, calculateWeightedMapalReadiness } = require('./../utils/mapalEnginePro');
 const { injectEmotionalQuestion } = require('./../utils/emutionalEngine');
 
 // Impact levels for MAPAL scoring
@@ -439,13 +439,7 @@ class AdvisorNetworkSystem {
             // 8. הזרקת שאלה רגשית
             injectEmotionalQuestion(conversation, currentAdvisorId, parsedResponse);
 
-            // 9. רינדור MAPAL markdown (כשהיו עדכונים בפועל)
-            if (Array.isArray(parsedResponse.mapalUpdates) && parsedResponse.mapalUpdates.length > 0) {
-                const markdown = renderMapalMarkdown(conversation.state.mapalScore);
-                if (markdown) {
-                    parsedResponse.text += `\n\n${markdown}`;
-                }
-            }
+            // 9. MAPAL markdown הוסר — Radar מוצג בפרונטאנד בסיידבר
 
             // 10. עדכון current advisor + קריאה ליועץ החדש אם יש handoff
             if (parsedResponse.nextAdvisor?.advisorId && parsedResponse.nextAdvisor.advisorId !== currentAdvisorId) {
@@ -504,14 +498,8 @@ class AdvisorNetworkSystem {
                             conversation.state.mapalScore.readiness = calculateWeightedMapalReadiness(conversation.state.mapalScore).percent;
                         }
 
-                        // שאלה רגשית + MAPAL markdown
+                        // שאלה רגשית (MAPAL markdown הוסר — מוצג בסיידבר)
                         injectEmotionalQuestion(conversation, newAdvisorId, newParsedResponse);
-                        if (Array.isArray(newParsedResponse.mapalUpdates) && newParsedResponse.mapalUpdates.length > 0) {
-                            const markdown = renderMapalMarkdown(conversation.state.mapalScore);
-                            if (markdown) {
-                                newParsedResponse.text += `\n\n${markdown}`;
-                            }
-                        }
 
                         newParsedResponse.processingTime = (Date.now() - startTime) / 1000;
                         newParsedResponse.model = config.openai.modelName;
