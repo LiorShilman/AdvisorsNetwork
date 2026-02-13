@@ -48,6 +48,110 @@
 
         <!-- תוכן ראשי: צ'אט + סיידבר -->
         <div class="flex-1 flex gap-4 min-h-0">
+
+            <!-- פאנל מסע יועצים + MAPAL Radar — ימין הצ'אט (ראשון ב-RTL = ימינה) -->
+            <aside class="flex-shrink-0 flex-col gap-3" style="width:224px; display:flex; align-self:flex-end">
+
+                <!-- Journey Timeline -->
+                <div class="flex flex-col bg-gray-800 bg-opacity-60 rounded-xl border border-gray-700 border-opacity-50 backdrop-blur-sm overflow-hidden flex-shrink-0">
+                    <div class="p-2.5 border-b border-gray-700 border-opacity-50">
+                        <h3 class="text-xs font-bold text-gray-400 text-center tracking-wider">🗺️ מסע היועצים</h3>
+                    </div>
+                    <div class="p-3 overflow-y-auto max-h-28">
+                        <div *ngIf="advisorJourney.length === 0" class="text-xs text-gray-500 text-center py-2">
+                            המסע יתחיל בקרוב...
+                        </div>
+                        <div class="relative" *ngIf="advisorJourney.length > 0">
+                            <!-- קו אנכי מחבר -->
+                            <div class="absolute right-4 top-5 bottom-5 w-0.5 bg-gray-600 journey-line"></div>
+                            <!-- תחנות -->
+                            <div *ngFor="let stop of advisorJourney; let i = index; let last = last"
+                                 class="relative flex items-center gap-2 mb-2 last:mb-0">
+                                <!-- עיגול תחנה -->
+                                <div class="relative flex-shrink-0 z-10"
+                                     [class.journey-active]="stop.isActive">
+                                    <img [src]="getIconPath(stop.icon)" [alt]="stop.name"
+                                         class="w-8 h-8 rounded-full object-cover border-2 transition-all"
+                                         [class.border-blue-400]="stop.isActive"
+                                         [class.border-gray-600]="!stop.isActive"
+                                         [class.opacity-60]="!stop.isActive"
+                                         onerror="this.style.display='none'">
+                                    <!-- ✓ על תחנות שהסתיימו -->
+                                    <div *ngIf="!stop.isActive"
+                                         class="absolute -bottom-0.5 -left-0.5 w-3.5 h-3.5 bg-green-500 rounded-full flex items-center justify-center">
+                                        <span class="text-white text-xs leading-none">✓</span>
+                                    </div>
+                                    <!-- פועם על תחנה פעילה -->
+                                    <div *ngIf="stop.isActive"
+                                         class="absolute inset-0 rounded-full border-2 border-blue-400 animate-ping opacity-40"></div>
+                                </div>
+                                <!-- שם + ספירה -->
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-xs truncate"
+                                         [class.text-white]="stop.isActive"
+                                         [class.font-semibold]="stop.isActive"
+                                         [class.text-gray-400]="!stop.isActive">
+                                        {{ stop.name }}
+                                    </div>
+                                    <div class="text-xs text-gray-500">{{ stop.count }} הודעות</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MAPAL Radar -->
+                <div class="flex-shrink-0 flex flex-col bg-gray-800 bg-opacity-60 rounded-xl border border-gray-700 border-opacity-50 backdrop-blur-sm overflow-hidden" style="height:320px">
+                    <div class="p-2 border-b border-gray-700 border-opacity-50 flex-shrink-0">
+                        <h3 class="text-xs font-bold text-gray-400 text-center tracking-wider">📊 מפ"ל 3.0</h3>
+                    </div>
+                    <div class="flex-1 flex flex-col items-center justify-center p-1 min-h-0">
+                        <!-- ציון אחוז -->
+                        <div class="text-center mb-0.5 flex-shrink-0">
+                            <span class="text-sm font-bold"
+                                  [class.text-green-400]="getRadarPercent() >= 60"
+                                  [class.text-yellow-400]="getRadarPercent() >= 30 && getRadarPercent() < 60"
+                                  [class.text-red-400]="getRadarPercent() < 30">
+                                {{ getRadarPercent() }}%
+                            </span>
+                            <span class="text-xs text-gray-400 block">מוכנות פיננסית</span>
+                        </div>
+                        <!-- SVG Radar Chart -->
+                        <svg viewBox="0 0 180 180" class="w-full max-w-[210px] flex-shrink-0" xmlns="http://www.w3.org/2000/svg">
+                            <!-- רשת רקע — עיגולים -->
+                            <g opacity="0.15">
+                                <circle cx="90" cy="90" r="72" fill="none" stroke="white" stroke-width="0.5"/>
+                                <circle cx="90" cy="90" r="54" fill="none" stroke="white" stroke-width="0.5"/>
+                                <circle cx="90" cy="90" r="36" fill="none" stroke="white" stroke-width="0.5"/>
+                                <circle cx="90" cy="90" r="18" fill="none" stroke="white" stroke-width="0.5"/>
+                            </g>
+                            <!-- ציר לכל תחום -->
+                            <ng-container *ngFor="let axis of getRadarAxes()">
+                                <line x1="90" y1="90" [attr.x2]="axis.x2" [attr.y2]="axis.y2"
+                                      stroke="white" stroke-width="0.4" opacity="0.2"/>
+                                <svg:text [attr.x]="axis.labelX" [attr.y]="axis.labelY"
+                                      text-anchor="middle" dominant-baseline="middle"
+                                      fill="#9CA3AF" font-size="6" font-family="Rubik, sans-serif">
+                                    {{ axis.label }}
+                                </svg:text>
+                            </ng-container>
+                            <!-- פוליגון ערכי מפ"ל -->
+                            <polygon [attr.points]="getRadarPolygon()"
+                                     fill="rgba(59,130,246,0.35)"
+                                     stroke="#60A5FA"
+                                     stroke-width="1.5"
+                                     stroke-linejoin="round"
+                                     class="radar-polygon"/>
+                            <!-- נקודות על הפוליגון -->
+                            <ng-container *ngFor="let axis of getRadarAxes(); let i = index">
+                                <circle [attr.cx]="getRadarDotX(i)" [attr.cy]="getRadarDotY(i)"
+                                        r="2" fill="#60A5FA" opacity="0.8"/>
+                            </ng-container>
+                        </svg>
+                    </div>
+                </div>
+            </aside>
+
             <!-- אזור הצ'אט -->
             <div class="flex-1 flex flex-col min-w-0 min-h-0">
                 <div class="flex-1 overflow-y-auto flex flex-col gap-4 mb-4 conversation-container">
@@ -173,109 +277,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- פאנל מסע יועצים + MAPAL Radar — מוצמד לתחתית -->
-            <aside class="flex-shrink-0 flex-col gap-3" style="width:224px; display:flex; align-self:flex-end">
-
-                <!-- Journey Timeline -->
-                <div class="flex flex-col bg-gray-800 bg-opacity-60 rounded-xl border border-gray-700 border-opacity-50 backdrop-blur-sm overflow-hidden flex-shrink-0">
-                    <div class="p-2.5 border-b border-gray-700 border-opacity-50">
-                        <h3 class="text-xs font-bold text-gray-400 text-center tracking-wider">🗺️ מסע היועצים</h3>
-                    </div>
-                    <div class="p-3 overflow-y-auto max-h-28">
-                        <div *ngIf="advisorJourney.length === 0" class="text-xs text-gray-500 text-center py-2">
-                            המסע יתחיל בקרוב...
-                        </div>
-                        <div class="relative" *ngIf="advisorJourney.length > 0">
-                            <!-- קו אנכי מחבר -->
-                            <div class="absolute right-4 top-5 bottom-5 w-0.5 bg-gray-600 journey-line"></div>
-                            <!-- תחנות -->
-                            <div *ngFor="let stop of advisorJourney; let i = index; let last = last"
-                                 class="relative flex items-center gap-2 mb-2 last:mb-0">
-                                <!-- עיגול תחנה -->
-                                <div class="relative flex-shrink-0 z-10"
-                                     [class.journey-active]="stop.isActive">
-                                    <img [src]="getIconPath(stop.icon)" [alt]="stop.name"
-                                         class="w-8 h-8 rounded-full object-cover border-2 transition-all"
-                                         [class.border-blue-400]="stop.isActive"
-                                         [class.border-gray-600]="!stop.isActive"
-                                         [class.opacity-60]="!stop.isActive"
-                                         onerror="this.style.display='none'">
-                                    <!-- ✓ על תחנות שהסתיימו -->
-                                    <div *ngIf="!stop.isActive"
-                                         class="absolute -bottom-0.5 -left-0.5 w-3.5 h-3.5 bg-green-500 rounded-full flex items-center justify-center">
-                                        <span class="text-white text-xs leading-none">✓</span>
-                                    </div>
-                                    <!-- פועם על תחנה פעילה -->
-                                    <div *ngIf="stop.isActive"
-                                         class="absolute inset-0 rounded-full border-2 border-blue-400 animate-ping opacity-40"></div>
-                                </div>
-                                <!-- שם + ספירה -->
-                                <div class="flex-1 min-w-0">
-                                    <div class="text-xs truncate"
-                                         [class.text-white]="stop.isActive"
-                                         [class.font-semibold]="stop.isActive"
-                                         [class.text-gray-400]="!stop.isActive">
-                                        {{ stop.name }}
-                                    </div>
-                                    <div class="text-xs text-gray-500">{{ stop.count }} הודעות</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- MAPAL Radar -->
-                <div class="flex-shrink-0 flex flex-col bg-gray-800 bg-opacity-60 rounded-xl border border-gray-700 border-opacity-50 backdrop-blur-sm overflow-hidden" style="height:260px">
-                    <div class="p-2 border-b border-gray-700 border-opacity-50 flex-shrink-0">
-                        <h3 class="text-xs font-bold text-gray-400 text-center tracking-wider">📊 מפ"ל 3.0</h3>
-                    </div>
-                    <div class="flex-1 flex flex-col items-center justify-center p-1 min-h-0">
-                        <!-- ציון אחוז -->
-                        <div class="text-center mb-0.5 flex-shrink-0">
-                            <span class="text-sm font-bold"
-                                  [class.text-green-400]="getRadarPercent() >= 60"
-                                  [class.text-yellow-400]="getRadarPercent() >= 30 && getRadarPercent() < 60"
-                                  [class.text-red-400]="getRadarPercent() < 30">
-                                {{ getRadarPercent() }}%
-                            </span>
-                            <span class="text-xs text-gray-400 block">מוכנות פיננסית</span>
-                        </div>
-                        <!-- SVG Radar Chart -->
-                        <svg viewBox="0 0 180 180" class="w-full max-w-[210px] flex-shrink-0" xmlns="http://www.w3.org/2000/svg">
-                            <!-- רשת רקע — עיגולים -->
-                            <g opacity="0.15">
-                                <circle cx="90" cy="90" r="72" fill="none" stroke="white" stroke-width="0.5"/>
-                                <circle cx="90" cy="90" r="54" fill="none" stroke="white" stroke-width="0.5"/>
-                                <circle cx="90" cy="90" r="36" fill="none" stroke="white" stroke-width="0.5"/>
-                                <circle cx="90" cy="90" r="18" fill="none" stroke="white" stroke-width="0.5"/>
-                            </g>
-                            <!-- ציר לכל תחום -->
-                            <ng-container *ngFor="let axis of getRadarAxes()">
-                                <line x1="90" y1="90" [attr.x2]="axis.x2" [attr.y2]="axis.y2"
-                                      stroke="white" stroke-width="0.4" opacity="0.2"/>
-                                <svg:text [attr.x]="axis.labelX" [attr.y]="axis.labelY"
-                                      text-anchor="middle" dominant-baseline="middle"
-                                      fill="#9CA3AF" font-size="6" font-family="Rubik, sans-serif">
-                                    {{ axis.label }}
-                                </svg:text>
-                            </ng-container>
-                            <!-- פוליגון ערכי מפ"ל -->
-                            <polygon [attr.points]="getRadarPolygon()"
-                                     fill="rgba(59,130,246,0.35)"
-                                     stroke="#60A5FA"
-                                     stroke-width="1.5"
-                                     stroke-linejoin="round"
-                                     class="radar-polygon"/>
-                            <!-- נקודות על הפוליגון -->
-                            <ng-container *ngFor="let axis of getRadarAxes(); let i = index">
-                                <circle [attr.cx]="getRadarDotX(i)" [attr.cy]="getRadarDotY(i)"
-                                        r="2" fill="#60A5FA" opacity="0.8"/>
-                            </ng-container>
-                        </svg>
-                    </div>
-                </div>
-            </aside>
 
             <!-- סיידבר יועצים - מוסתר במובייל -->
             <aside class="w-64 flex-shrink-0 hidden lg:flex flex-col bg-gray-800 bg-opacity-60 rounded-xl border border-gray-700 border-opacity-50 backdrop-blur-sm overflow-hidden">
