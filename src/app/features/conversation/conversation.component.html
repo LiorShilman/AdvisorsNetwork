@@ -61,93 +61,102 @@
                         <div *ngIf="advisorJourney.length === 0" class="text-xs text-gray-500 text-center py-2">
                             המסע יתחיל בקרוב...
                         </div>
-                        <!-- 3 עמודות: ימין | אמצע (אופק) | שמאל -->
-                        <div *ngIf="advisorJourney.length > 0" class="grid grid-cols-3 gap-1 h-full">
-                            <!-- עמודה ימין -->
-                            <div class="flex flex-col gap-2">
-                                <div *ngFor="let stop of getJourneyColumns().rightCol" class="relative flex flex-col items-center">
-                                    <div class="relative flex-shrink-0 z-10" [class.journey-active]="stop.isActive">
-                                        <img [src]="getIconPath(stop.icon)" [alt]="stop.name"
+                        <!-- 3 עמודות עם מיקום דינמי לפי זמן -->
+                        <div *ngIf="advisorJourney.length > 0" class="grid grid-cols-3 gap-x-1 auto-rows-fr h-full relative">
+                            <!-- קווים מחברים אנכיים בעמודה האמצעית -->
+                            <div class="absolute top-0 bottom-0 left-1/2 w-0.5 bg-cyan-600 bg-opacity-20 -translate-x-1/2" style="grid-column: 2;"></div>
+
+                            <!-- עמודה ימין - יועצים אחרים -->
+                            <ng-container *ngFor="let item of getJourneyColumns().rightCol">
+                                <div [style.grid-row]="item.originalIndex + 1"
+                                     [style.grid-column]="1"
+                                     class="relative flex flex-col items-center justify-center">
+                                    <div class="relative flex-shrink-0 z-10" [class.journey-active]="item.isActive">
+                                        <img [src]="getIconPath(item.icon)" [alt]="item.name"
                                              class="w-10 h-10 rounded-full object-cover border-2 transition-all"
-                                             [class.border-blue-400]="stop.isActive"
-                                             [class.border-gray-600]="!stop.isActive"
-                                             [class.opacity-60]="!stop.isActive"
+                                             [class.border-blue-400]="item.isActive"
+                                             [class.border-gray-600]="!item.isActive"
+                                             [class.opacity-60]="!item.isActive"
                                              onerror="this.style.display='none'">
-                                        <div *ngIf="!stop.isActive"
+                                        <div *ngIf="!item.isActive"
                                              class="absolute -bottom-0.5 -left-0.5 w-3.5 h-3.5 bg-green-500 rounded-full flex items-center justify-center">
                                             <span class="text-white text-xs leading-none">✓</span>
                                         </div>
-                                        <div *ngIf="stop.isActive"
+                                        <div *ngIf="item.isActive"
                                              class="absolute inset-0 rounded-full border-2 border-blue-400 animate-ping opacity-40"></div>
                                     </div>
-                                    <div class="text-center mt-1">
-                                        <div class="text-xs truncate"
-                                             [class.text-white]="stop.isActive"
-                                             [class.font-semibold]="stop.isActive"
-                                             [class.text-gray-400]="!stop.isActive">
-                                            {{ stop.name }}
+                                    <div class="text-center mt-0.5">
+                                        <div class="text-xs truncate max-w-[80px]"
+                                             [class.text-white]="item.isActive"
+                                             [class.font-semibold]="item.isActive"
+                                             [class.text-gray-400]="!item.isActive">
+                                            {{ item.name }}
                                         </div>
-                                        <div class="text-xs text-gray-500">{{ stop.count }}</div>
+                                        <div class="text-xs text-gray-500">{{ item.count }}</div>
                                     </div>
                                 </div>
-                            </div>
+                            </ng-container>
 
-                            <!-- עמודה אמצעית (אופק) -->
-                            <div class="flex flex-col gap-2 border-x border-gray-600 border-opacity-30">
-                                <div *ngFor="let stop of getJourneyColumns().centerCol" class="relative flex flex-col items-center">
-                                    <div class="relative flex-shrink-0 z-10" [class.journey-active]="stop.isActive">
-                                        <img [src]="getIconPath(stop.icon)" [alt]="stop.name"
+                            <!-- עמודה אמצעית - אופק -->
+                            <ng-container *ngFor="let item of getJourneyColumns().centerCol">
+                                <div [style.grid-row]="item.originalIndex + 1"
+                                     [style.grid-column]="2"
+                                     class="relative flex flex-col items-center justify-center border-x border-gray-600 border-opacity-30">
+                                    <div class="relative flex-shrink-0 z-10" [class.journey-active]="item.isActive">
+                                        <img [src]="getIconPath(item.icon)" [alt]="item.name"
                                              class="w-12 h-12 rounded-full object-cover border-2 transition-all"
-                                             [class.border-blue-400]="stop.isActive"
-                                             [class.border-cyan-400]="!stop.isActive"
-                                             [class.opacity-90]="!stop.isActive"
+                                             [class.border-blue-400]="item.isActive"
+                                             [class.border-cyan-400]="!item.isActive"
+                                             [class.opacity-90]="!item.isActive"
                                              onerror="this.style.display='none'">
-                                        <div *ngIf="!stop.isActive"
+                                        <div *ngIf="!item.isActive"
                                              class="absolute -bottom-0.5 -left-0.5 w-3.5 h-3.5 bg-green-500 rounded-full flex items-center justify-center">
                                             <span class="text-white text-xs leading-none">✓</span>
                                         </div>
-                                        <div *ngIf="stop.isActive"
+                                        <div *ngIf="item.isActive"
                                              class="absolute inset-0 rounded-full border-2 border-cyan-400 animate-ping opacity-40"></div>
                                     </div>
-                                    <div class="text-center mt-1">
-                                        <div class="text-xs truncate font-semibold"
-                                             [class.text-white]="stop.isActive"
-                                             [class.text-cyan-300]="!stop.isActive">
-                                            {{ stop.name }}
+                                    <div class="text-center mt-0.5">
+                                        <div class="text-xs truncate font-semibold max-w-[80px]"
+                                             [class.text-white]="item.isActive"
+                                             [class.text-cyan-300]="!item.isActive">
+                                            {{ item.name }}
                                         </div>
-                                        <div class="text-xs text-gray-400">{{ stop.count }}</div>
+                                        <div class="text-xs text-gray-400">{{ item.count }}</div>
                                     </div>
                                 </div>
-                            </div>
+                            </ng-container>
 
-                            <!-- עמודה שמאל -->
-                            <div class="flex flex-col gap-2">
-                                <div *ngFor="let stop of getJourneyColumns().leftCol" class="relative flex flex-col items-center">
-                                    <div class="relative flex-shrink-0 z-10" [class.journey-active]="stop.isActive">
-                                        <img [src]="getIconPath(stop.icon)" [alt]="stop.name"
+                            <!-- עמודה שמאל - יועצים אחרים -->
+                            <ng-container *ngFor="let item of getJourneyColumns().leftCol">
+                                <div [style.grid-row]="item.originalIndex + 1"
+                                     [style.grid-column]="3"
+                                     class="relative flex flex-col items-center justify-center">
+                                    <div class="relative flex-shrink-0 z-10" [class.journey-active]="item.isActive">
+                                        <img [src]="getIconPath(item.icon)" [alt]="item.name"
                                              class="w-10 h-10 rounded-full object-cover border-2 transition-all"
-                                             [class.border-blue-400]="stop.isActive"
-                                             [class.border-gray-600]="!stop.isActive"
-                                             [class.opacity-60]="!stop.isActive"
+                                             [class.border-blue-400]="item.isActive"
+                                             [class.border-gray-600]="!item.isActive"
+                                             [class.opacity-60]="!item.isActive"
                                              onerror="this.style.display='none'">
-                                        <div *ngIf="!stop.isActive"
+                                        <div *ngIf="!item.isActive"
                                              class="absolute -bottom-0.5 -left-0.5 w-3.5 h-3.5 bg-green-500 rounded-full flex items-center justify-center">
                                             <span class="text-white text-xs leading-none">✓</span>
                                         </div>
-                                        <div *ngIf="stop.isActive"
+                                        <div *ngIf="item.isActive"
                                              class="absolute inset-0 rounded-full border-2 border-blue-400 animate-ping opacity-40"></div>
                                     </div>
-                                    <div class="text-center mt-1">
-                                        <div class="text-xs truncate"
-                                             [class.text-white]="stop.isActive"
-                                             [class.font-semibold]="stop.isActive"
-                                             [class.text-gray-400]="!stop.isActive">
-                                            {{ stop.name }}
+                                    <div class="text-center mt-0.5">
+                                        <div class="text-xs truncate max-w-[80px]"
+                                             [class.text-white]="item.isActive"
+                                             [class.font-semibold]="item.isActive"
+                                             [class.text-gray-400]="!item.isActive">
+                                            {{ item.name }}
                                         </div>
-                                        <div class="text-xs text-gray-500">{{ stop.count }}</div>
+                                        <div class="text-xs text-gray-500">{{ item.count }}</div>
                                     </div>
                                 </div>
-                            </div>
+                            </ng-container>
                         </div>
                     </div>
                 </div>

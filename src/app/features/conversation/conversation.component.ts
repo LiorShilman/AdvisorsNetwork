@@ -166,27 +166,31 @@ export class ConversationComponent implements OnInit, AfterViewInit {
 
   // ---- Journey 3 Columns ----
   getJourneyColumns() {
-    const leftCol: typeof this.advisorJourney = [];
-    const centerCol: typeof this.advisorJourney = [];
-    const rightCol: typeof this.advisorJourney = [];
+    type JourneyItem = typeof this.advisorJourney[0] & { originalIndex: number };
+    const leftCol: JourneyItem[] = [];
+    const centerCol: JourneyItem[] = [];
+    const rightCol: JourneyItem[] = [];
 
-    let otherIndex = 0;
-    this.advisorJourney.forEach(stop => {
+    let sideToggle = true; // true = right, false = left
+
+    this.advisorJourney.forEach((stop, index) => {
+      const item = { ...stop, originalIndex: index };
+
       if (stop.id === 'strategy') {
         // אופק תמיד במרכז
-        centerCol.push(stop);
+        centerCol.push(item);
       } else {
-        // שאר היועצים מתחלקים לפי אינדקס זוגי/אי-זוגי
-        if (otherIndex % 2 === 0) {
-          rightCol.push(stop);  // RTL: ימין
+        // שאר היועצים מתחלקים בין ימין לשמאל לסירוגין
+        if (sideToggle) {
+          rightCol.push(item);  // RTL: ימין
         } else {
-          leftCol.push(stop);   // RTL: שמאל
+          leftCol.push(item);   // RTL: שמאל
         }
-        otherIndex++;
+        sideToggle = !sideToggle;
       }
     });
 
-    return { leftCol, centerCol, rightCol };
+    return { leftCol, centerCol, rightCol, totalStops: this.advisorJourney.length };
   }
 
   constructor(
