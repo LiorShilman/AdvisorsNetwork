@@ -14,9 +14,8 @@ const {
     handleAdvisorResponse
 } = require('../utils//advisorSummaryTools');
 const { maybeTriggerFutureSelf } = require('./../utils/futureSelfTrigger');
-const { renderMapalMarkdown, MAPAL_FIELD_KEYS, DOMAIN_KEYS } = require('./../utils/mapalEnginePro');
+const { renderMapalMarkdown, VALID_MAPAL_FIELDS, calculateWeightedMapalReadiness } = require('./../utils/mapalEnginePro');
 const { injectEmotionalQuestion } = require('./../utils/emutionalEngine');
-const { calculateWeightedMapalReadiness } = require('./../utils/mapalEnginePro');
 
 // Impact levels for MAPAL scoring
 const IMPACT_LEVELS = {
@@ -66,10 +65,40 @@ const functionDefinition = {
                 type: "string",
                 description: "סיכום ממצאים מהותיים להעברה ליועץ הבא (רק אם יש nextAdvisor)"
             },
-            mapalImpact: {
-                type: "string",
-                enum: ["NONE", "LOW", "MEDIUM", "HIGH", "QUANTUM"],
-                description: "עוצמת ההשפעה על התקדמות המשתמש בתחום זה"
+            mapalUpdates: {
+                type: "array",
+                description: "עדכוני מפ\"ל — רשימת תחומים שנגעת בהם בשיחה זו. כלול רק תחומים שבאמת עסקת בהם.",
+                items: {
+                    type: "object",
+                    properties: {
+                        field: {
+                            type: "string",
+                            enum: [
+                                "financialFoundations",
+                                "behaviorAndHabits",
+                                "pensionPlanning",
+                                "assetDiversification",
+                                "alternativeInvestments",
+                                "mortgageOptimization",
+                                "legalAndInsurance",
+                                "incomeGrowth",
+                                "specialSituationsResilience",
+                                "dataBasedManagement",
+                                "resourceLifeQualityBalance",
+                                "abundanceMindset",
+                                "intergenerationalTransfer",
+                                "retirementAlternatives"
+                            ],
+                            description: "שם התחום"
+                        },
+                        impact: {
+                            type: "string",
+                            enum: ["LOW", "MEDIUM", "HIGH", "QUANTUM"],
+                            description: "עוצמת ההשפעה: LOW=1, MEDIUM=2, HIGH=3, QUANTUM=5"
+                        }
+                    },
+                    required: ["field", "impact"]
+                }
             },
             nextAdvisor: {
                 type: "object",
@@ -110,7 +139,7 @@ const functionDefinition = {
                 required: ["advisorId", "reason", "handoffText"]
             }
         },
-        required: ["text", "advisorId", "mapalImpact"]
+        required: ["text", "advisorId", "mapalUpdates"]
     }
 };
 
@@ -290,7 +319,27 @@ class AdvisorNetworkSystem {
 🔧 פורמט התשובה (חובה):
 - text: התשובה המלאה בMarkdown
 - advisorId: "${currentAdvisorId}"
-- mapalImpact: הערך את עוצמת ההשפעה (NONE/LOW/MEDIUM/HIGH/QUANTUM)
+- mapalUpdates: רשימת התחומים שנגעת בהם בשיחה זו (ראה למטה)
+
+📊 **מפ"ל 3.0 — עדכון תחומים:**
+עדכן כל תחום שבאמת עסקת בו בהודעה זו (ניתן לעדכן מספר תחומים בבת אחת!):
+- financialFoundations — יסודות, תקציב, תזרים חודשי
+- behaviorAndHabits — הרגלים, דפוסי הוצאה, פסיכולוגיה כלכלית
+- pensionPlanning — פנסיה, קרן השתלמות, פרישה
+- assetDiversification — השקעות, חיסכון לטווח ארוך, תיק נכסים
+- alternativeInvestments — קריפטו, השקעות חדשניות, סטארטאפים
+- mortgageOptimization — משכנתא, נדל"ן, מיחזור הלוואה
+- legalAndInsurance — ביטוחים, ניהול סיכונים, עצמאים
+- incomeGrowth — קריירה, העלאת הכנסות, מיתוג אישי
+- specialSituationsResilience — גירושין, מוות, משבר, מצב מורכב
+- dataBasedManagement — ניתוח נתונים, מעקב, דוחות
+- resourceLifeQualityBalance — איזון חיים-כסף, מטרות חיים
+- abundanceMindset — תודעת שפע, אמונות מגבילות, חסמים נפשיים
+- intergenerationalTransfer — ירושה, עסק משפחתי, העברת נכסים
+- retirementAlternatives — פרישה מוקדמת, FIRE, חופשה שבתית
+
+דוגמה: [{"field": "financialFoundations", "impact": "HIGH"}, {"field": "behaviorAndHabits", "impact": "MEDIUM"}]
+אם השיחה לא נגעה באף תחום: []
 
 🎯 **מי אתה:**
 - אתה ${advisorName}, והמזהה שלך הוא "${currentAdvisorId}"
@@ -364,27 +413,27 @@ class AdvisorNetworkSystem {
                 };
             }
 
-            // 7. עדכון MAPAL מהשדה החדש (ללא קריאה נוספת!)
-            if (parsedResponse.mapalImpact) {
-                const impactValue = IMPACT_LEVELS[parsedResponse.mapalImpact] || 0;
-                const fieldKey = MAPAL_FIELD_KEYS[currentAdvisorId];
-
-                if (fieldKey && impactValue > 0) {
-                    const prev = conversation.state.mapalScore[fieldKey] || 0;
-                    const next = Math.min(prev + impactValue, 5);
-                    conversation.state.mapalScore[fieldKey] = next;
-                    conversation.state.mapalScore.readiness = calculateWeightedMapalReadiness(conversation.state.mapalScore).percent;
-
-                    this.addMapalHistoryEntry(
-                        conversation,
-                        DOMAIN_KEYS[currentAdvisorId] || 'general',
-                        prev,
-                        next,
-                        currentAdvisorId,
-                        parsedResponse.text,
-                        parsedResponse.mapalImpact
-                    );
+            // 7. עדכון MAPAL 3.0 — ריבוי שדות בקריאה אחת
+            if (Array.isArray(parsedResponse.mapalUpdates) && parsedResponse.mapalUpdates.length > 0) {
+                for (const update of parsedResponse.mapalUpdates) {
+                    const { field, impact } = update;
+                    const impactValue = IMPACT_LEVELS[impact] || 0;
+                    if (impactValue > 0 && VALID_MAPAL_FIELDS.includes(field)) {
+                        const prev = conversation.state.mapalScore[field] || 0;
+                        const next = Math.min(prev + impactValue, 5);
+                        conversation.state.mapalScore[field] = next;
+                        this.addMapalHistoryEntry(
+                            conversation,
+                            field,
+                            prev,
+                            next,
+                            currentAdvisorId,
+                            parsedResponse.text,
+                            impact
+                        );
+                    }
                 }
+                conversation.state.mapalScore.readiness = calculateWeightedMapalReadiness(conversation.state.mapalScore).percent;
             }
 
             // 8. הזרקת שאלה רגשית
@@ -393,7 +442,7 @@ class AdvisorNetworkSystem {
             // 9. רינדור MAPAL markdown
             const fieldKey = MAPAL_FIELD_KEYS[currentAdvisorId];
             if (fieldKey) {
-                const markdown = renderMapalMarkdown(conversation.state.mapalScore, parsedResponse.mapalImpact);
+                const markdown = renderMapalMarkdown(conversation.state.mapalScore);
                 if (markdown) {
                     parsedResponse.text += `\n\n${markdown}`;
                 }
@@ -442,23 +491,25 @@ class AdvisorNetworkSystem {
                         const newParsedResponse = this.extractAndParseResponse(newAiResponse);
                         newParsedResponse.advisorId = newAdvisorId;
 
-                        // MAPAL עדכון מהיועץ החדש
-                        if (newParsedResponse.mapalImpact) {
-                            const impactValue = IMPACT_LEVELS[newParsedResponse.mapalImpact] || 0;
-                            const newFieldKey = MAPAL_FIELD_KEYS[newAdvisorId];
-                            if (newFieldKey && impactValue > 0) {
-                                const prev = conversation.state.mapalScore[newFieldKey] || 0;
-                                const next = Math.min(prev + impactValue, 5);
-                                conversation.state.mapalScore[newFieldKey] = next;
-                                conversation.state.mapalScore.readiness = calculateWeightedMapalReadiness(conversation.state.mapalScore).percent;
+                        // MAPAL 3.0 עדכון מהיועץ החדש — ריבוי שדות
+                        if (Array.isArray(newParsedResponse.mapalUpdates) && newParsedResponse.mapalUpdates.length > 0) {
+                            for (const update of newParsedResponse.mapalUpdates) {
+                                const { field, impact } = update;
+                                const impactValue = IMPACT_LEVELS[impact] || 0;
+                                if (impactValue > 0 && VALID_MAPAL_FIELDS.includes(field)) {
+                                    const prev = conversation.state.mapalScore[field] || 0;
+                                    const next = Math.min(prev + impactValue, 5);
+                                    conversation.state.mapalScore[field] = next;
+                                }
                             }
+                            conversation.state.mapalScore.readiness = calculateWeightedMapalReadiness(conversation.state.mapalScore).percent;
                         }
 
                         // שאלה רגשית + MAPAL markdown
                         injectEmotionalQuestion(conversation, newAdvisorId, newParsedResponse);
                         const newFieldKey = MAPAL_FIELD_KEYS[newAdvisorId];
                         if (newFieldKey) {
-                            const markdown = renderMapalMarkdown(conversation.state.mapalScore, newParsedResponse.mapalImpact);
+                            const markdown = renderMapalMarkdown(conversation.state.mapalScore);
                             if (markdown) {
                                 newParsedResponse.text += `\n\n${markdown}`;
                             }

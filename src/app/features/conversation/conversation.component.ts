@@ -36,6 +36,26 @@ export class ConversationComponent implements OnInit, AfterViewInit {
   showMobileAdvisors: boolean = false;
   advisorsList: { id: string; name: string; icon: string; color: string; description?: string }[] = [];
 
+  // MAPAL 3.0 — ציוני מפ"ל ומסע היועצים
+  mapalScore: Record<string, number> = {};
+
+  readonly MAPAL_FIELDS: { key: string; label: string }[] = [
+    { key: 'financialFoundations',        label: 'יסודות' },
+    { key: 'behaviorAndHabits',           label: 'הרגלים' },
+    { key: 'pensionPlanning',             label: 'פנסיה' },
+    { key: 'assetDiversification',        label: 'השקעות' },
+    { key: 'alternativeInvestments',      label: 'חדשנות' },
+    { key: 'mortgageOptimization',        label: 'משכנתא' },
+    { key: 'legalAndInsurance',           label: 'ביטוח' },
+    { key: 'incomeGrowth',                label: 'הכנסה' },
+    { key: 'specialSituationsResilience', label: 'מיוחד' },
+    { key: 'dataBasedManagement',         label: 'נתונים' },
+    { key: 'resourceLifeQualityBalance',  label: 'איזון' },
+    { key: 'abundanceMindset',            label: 'שפע' },
+    { key: 'intergenerationalTransfer',   label: 'ירושה' },
+    { key: 'retirementAlternatives',      label: 'FIRE' }
+  ];
+
   advisors: Record<AdvisorId, { name: string; icon: string; color: string; description?: string }> = {
     strategy: { name: 'אופק – מנהל יועצים פיננסיים', icon: '/strategy.png', color: 'bg-cyan-700' },
     budget: { name: 'רון – כלכלת המשפחה', icon: '/budget.png', color: 'bg-amber-700' },
@@ -80,6 +100,69 @@ export class ConversationComponent implements OnInit, AfterViewInit {
       advisorId: 'strategy'
     }
   ];
+
+  // ---- מסע יועצים ----
+  get advisorJourney(): { id: AdvisorId; name: string; icon: string; color: string; count: number; isActive: boolean }[] {
+    const visits: { id: AdvisorId; name: string; icon: string; color: string; count: number; isActive: boolean }[] = [];
+    for (const msg of this.conversation) {
+      if (msg.sender === 'system' && msg.advisorId && msg.text !== 'מקליד...') {
+        const last = visits[visits.length - 1];
+        if (last && last.id === msg.advisorId) {
+          last.count++;
+        } else {
+          const a = this.advisors[msg.advisorId];
+          if (a) visits.push({ id: msg.advisorId, name: a.name.split('–')[0].trim(), icon: a.icon, color: a.color, count: 1, isActive: false });
+        }
+      }
+    }
+    if (visits.length > 0) visits[visits.length - 1].isActive = true;
+    return visits;
+  }
+
+  // ---- MAPAL Radar SVG ----
+  getRadarPolygon(): string {
+    const cx = 90, cy = 90, r = 72;
+    const n = this.MAPAL_FIELDS.length;
+    return this.MAPAL_FIELDS.map((f, i) => {
+      const angle = (i * 2 * Math.PI / n) - Math.PI / 2;
+      const val = Math.min((this.mapalScore[f.key] || 0) / 5, 1);
+      return `${(cx + r * val * Math.cos(angle)).toFixed(1)},${(cy + r * val * Math.sin(angle)).toFixed(1)}`;
+    }).join(' ');
+  }
+
+  getRadarAxes(): { x2: number; y2: number; label: string; labelX: number; labelY: number }[] {
+    const cx = 90, cy = 90, r = 72, lr = 84;
+    const n = this.MAPAL_FIELDS.length;
+    return this.MAPAL_FIELDS.map((f, i) => {
+      const angle = (i * 2 * Math.PI / n) - Math.PI / 2;
+      return {
+        x2: parseFloat((cx + r * Math.cos(angle)).toFixed(1)),
+        y2: parseFloat((cy + r * Math.sin(angle)).toFixed(1)),
+        label: f.label,
+        labelX: parseFloat((cx + lr * Math.cos(angle)).toFixed(1)),
+        labelY: parseFloat((cy + lr * Math.sin(angle)).toFixed(1))
+      };
+    });
+  }
+
+  getRadarPercent(): number {
+    const total = this.MAPAL_FIELDS.reduce((s, f) => s + (this.mapalScore[f.key] || 0), 0);
+    return Math.round((total / (this.MAPAL_FIELDS.length * 5)) * 100);
+  }
+
+  getRadarDotX(i: number): number {
+    const cx = 90, r = 72, n = this.MAPAL_FIELDS.length;
+    const angle = (i * 2 * Math.PI / n) - Math.PI / 2;
+    const val = Math.min((this.mapalScore[this.MAPAL_FIELDS[i].key] || 0) / 5, 1);
+    return parseFloat((cx + r * val * Math.cos(angle)).toFixed(1));
+  }
+
+  getRadarDotY(i: number): number {
+    const cy = 90, r = 72, n = this.MAPAL_FIELDS.length;
+    const angle = (i * 2 * Math.PI / n) - Math.PI / 2;
+    const val = Math.min((this.mapalScore[this.MAPAL_FIELDS[i].key] || 0) / 5, 1);
+    return parseFloat((cy + r * val * Math.sin(angle)).toFixed(1));
+  }
 
   constructor(
     private sanitizer: DomSanitizer,
@@ -587,6 +670,11 @@ export class ConversationComponent implements OnInit, AfterViewInit {
         if (response.success && response.conversation && Array.isArray(response.conversation.messages) && response.conversation.messages.length > 0) {
           this.conversation = response.conversation.messages;
 
+          // טעינת ציוני מפ"ל מה-state
+          if (response.conversation.state?.mapalScore) {
+            this.mapalScore = response.conversation.state.mapalScore;
+          }
+
           // קוד חדש כאן - מציאת היועץ האחרון מההיסטוריה
           for (let i = this.conversation.length - 1; i >= 0; i--) {
             if (this.conversation[i].sender === 'system' && this.conversation[i].advisorId) {
@@ -757,9 +845,12 @@ export class ConversationComponent implements OnInit, AfterViewInit {
         }
       })
     ).subscribe({
-      next: (response: { success: any; response: ChatMessage; }) => {
+      next: (response: { success: any; response: ChatMessage; mapalScore?: Record<string, number> }) => {
         if (response.success && response.response) {
-          //console.log('Response received:', response.response);
+          // עדכון ציוני מפ"ל בזמן אמת
+          if (response.mapalScore && Object.keys(response.mapalScore).length > 0) {
+            this.mapalScore = { ...response.mapalScore };
+          }
 
           // שמירת מזהה היועץ האחרון אם קיים
           if (response.response.advisorId) {

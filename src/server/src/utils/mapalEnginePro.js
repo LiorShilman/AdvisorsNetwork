@@ -51,6 +51,24 @@ const MAPAL_FIELD_KEYS = {
   futureself: 'abundanceMindset'
 };
 
+// רשימת כל שדות מפ"ל התקפים — מקור האמת לולידציה
+const VALID_MAPAL_FIELDS = [
+  'financialFoundations',
+  'behaviorAndHabits',
+  'pensionPlanning',
+  'assetDiversification',
+  'alternativeInvestments',
+  'mortgageOptimization',
+  'legalAndInsurance',
+  'incomeGrowth',
+  'specialSituationsResilience',
+  'dataBasedManagement',
+  'resourceLifeQualityBalance',
+  'abundanceMindset',
+  'intergenerationalTransfer',
+  'retirementAlternatives'
+];
+
 const DOMAIN_WEIGHTS = {
   planning: 0.20,
   protection: 0.15,
@@ -360,7 +378,7 @@ function calculateMapalReadiness(mapalScore) {
   return Math.round(average);
 }
 
-function renderMapalMarkdown(mapalScore, impactLevel = null, previousScore = null) {
+function renderMapalMarkdown(mapalScore, previousScore = null) {
   const domainLabels = {
     financialFoundations: { label: 'יסודות פיננסיים', weight: 12, icon: '💰' },
     behaviorAndHabits: { label: 'התנהגות והרגלים פיננסיים', weight: 8, icon: '🧠' },
@@ -393,15 +411,15 @@ function renderMapalMarkdown(mapalScore, impactLevel = null, previousScore = nul
   const weightedAverage = totalWeightedScore / totalWeight;
 
   // פונקציה לבר התקדמות צבעוני
-  const getBar = (score, maxScore = 10) => {
+  const getBar = (score, maxScore = 5) => {
     const segments = 10;
     const filled = Math.round((score / maxScore) * segments);
-    
+
     let bar = '';
     for (let i = 1; i <= segments; i++) {
       if (i <= filled) {
-        if (score < 4) bar += '🟥';
-        else if (score < 7) bar += '🟨';
+        if (score < 2) bar += '🟥';
+        else if (score < 3.5) bar += '🟨';
         else bar += '🟩';
       } else {
         bar += '⬜';
@@ -418,12 +436,12 @@ function renderMapalMarkdown(mapalScore, impactLevel = null, previousScore = nul
     return '←'; // ללא שינוי - שמאלה
   };
 
-  // קביעת סטטוס כללי
+  // קביעת סטטוס כללי (סקלה 0-5)
   const getStatus = (score) => {
-    if (score >= 8.5) return { text: 'מצוין', emoji: '🟢' };
-    if (score >= 7.0) return { text: 'טוב מאוד', emoji: '🟡' };
-    if (score >= 5.5) return { text: 'בינוני+', emoji: '🟠' };
-    if (score >= 4.0) return { text: 'בינוני', emoji: '🔴' };
+    if (score >= 4.25) return { text: 'מצוין', emoji: '🟢' };
+    if (score >= 3.5)  return { text: 'טוב מאוד', emoji: '🟡' };
+    if (score >= 2.75) return { text: 'בינוני+', emoji: '🟠' };
+    if (score >= 2.0)  return { text: 'בינוני', emoji: '🔴' };
     return { text: 'זקוק לשיפור', emoji: '🔴' };
   };
 
@@ -433,7 +451,7 @@ function renderMapalMarkdown(mapalScore, impactLevel = null, previousScore = nul
   // כותרת ראשית בלבד
   result.push('## 📊 מדד מפ"ל 2.0 - מוכנות פיננסית לפרישה');
   result.push('');
-  result.push(`**ציון כולל:** ${weightedAverage.toFixed(1)}/10 ${status.emoji} (${status.text})`);
+  result.push(`**ציון כולל:** ${weightedAverage.toFixed(1)}/5 ${status.emoji} (${status.text})`);
   result.push('');
   
   // טבלה עיקרית עם ריווח טוב יותר
@@ -444,7 +462,7 @@ function renderMapalMarkdown(mapalScore, impactLevel = null, previousScore = nul
     const score = mapalScore[key] || 0;
     const previousDomainScore = previousScore ? previousScore[key] : null;
     const trend = getTrend(score, previousDomainScore);
-    const progress = getBar(score, 10);
+    const progress = getBar(score, 5);
     
     result.push(`| ${domain.icon} ${domain.label}&nbsp;&nbsp; | &nbsp;${score.toFixed(1)}/5&nbsp; | &nbsp;${trend}&nbsp; | &nbsp;${progress}&nbsp; | &nbsp;${domain.weight}%&nbsp; |`);
   });
@@ -479,24 +497,10 @@ function renderMapalMarkdown(mapalScore, impactLevel = null, previousScore = nul
 
   weakest.forEach((item, index) => {
     const priorityEmoji = index === 0 ? '🔴' : index === 1 ? '🟡' : '🟢';
-    result.push(`${index + 1}. ${priorityEmoji} **${item.domain.icon} ${item.domain.label}** (${item.score.toFixed(1)}/10)`);
+    result.push(`${index + 1}. ${priorityEmoji} **${item.domain.icon} ${item.domain.label}** (${item.score.toFixed(1)}/5)`);
     result.push(`   📝 ${recommendations[item.key]}`);
     result.push('');
   });
-
-  // רמת השפעה אם קיימת
-  if (impactLevel) {
-    const impactEmojis = {
-      'נמוכה': '🟢',
-      'בינונית': '🟡', 
-      'גבוהה': '🟠',
-      'קריטית': '🔴'
-    };
-    
-    result.push('### 💥 עוצמת השפעה על איכות החיים');
-    result.push(`${impactEmojis[impactLevel] || '⚪'} **${impactLevel}**`);
-    result.push('');
-  }
 
   // סיכום פשוט
   result.push('---');
@@ -601,5 +605,7 @@ module.exports = {
   updateMapalScoreSmart,
   updateMapalScoreWithImpactModel,
   DOMAIN_KEYS,
-  MAPAL_FIELD_KEYS
+  MAPAL_FIELD_KEYS,
+  VALID_MAPAL_FIELDS,
+  IMPACT_LEVELS
 };

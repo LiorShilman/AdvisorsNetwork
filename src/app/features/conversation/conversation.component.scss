@@ -469,3 +469,18 @@
       }
     }
   }
+
+// ---- Journey Timeline ----
+.journey-line {
+  background: linear-gradient(to bottom, #3B82F6, #6366F1);
+  opacity: 0.4;
+}
+
+.journey-active img {
+  box-shadow: 0 0 10px rgba(96, 165, 250, 0.6);
+}
+
+// ---- MAPAL Radar ----
+.radar-polygon {
+  transition: all 0.5s ease-out;
+}

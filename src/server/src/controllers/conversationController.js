@@ -371,7 +371,7 @@ exports.sendMessage = async (req, res) => {
       icon: advisorNetworkSystem.getAdvisorIcon(response.advisorId)
     } : null;
 
-    // החזרת התשובה ללקוח עם מידע מורחב
+    // החזרת התשובה ללקוח עם מידע מורחב + ציוני מפ"ל
     return res.json({
       success: true,
       response: {
@@ -380,7 +380,8 @@ exports.sendMessage = async (req, res) => {
         advisorId: response.advisorId,
         advisorInfo: advisorInfo,
         nextAdvisor: response.nextAdvisor
-      }
+      },
+      mapalScore: conversation.state?.mapalScore || {}
     });
   } catch (error) {
     logger.error('Error in sendMessage controller:', error);
